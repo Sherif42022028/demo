@@ -16,6 +16,7 @@ import {
   BarChart3,
   Settings,
   Building2,
+  Lock,
   ChevronLeft,
 } from "lucide-react";
 
@@ -52,7 +53,7 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* Nav Links */}
-        <nav className="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-140px)]">
+        <nav className="p-4 space-y-1.5 overflow-y-auto max-h-[calc(100vh-180px)]">
           {navigationItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
@@ -78,14 +79,32 @@ export const Sidebar: React.FC = () => {
         </nav>
       </div>
 
-      {/* Settings Footer */}
-      <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+      {/* Settings & Auth Footer */}
+      <div className="p-4 border-t border-slate-200 dark:border-slate-800 space-y-1">
+        <Link
+          href="/login"
+          className={cn(
+            "flex items-center gap-3 rounded-xl px-3.5 py-2 text-xs font-bold transition-all",
+            pathname === "/login"
+              ? "bg-blue-50 dark:bg-blue-950 text-blue-600"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+          )}
+        >
+          <Lock className="h-4 w-4 text-slate-500" />
+          <span>تسجيل الدخول (Auth)</span>
+        </Link>
+
         <Link
           href="/settings"
-          className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+          className={cn(
+            "flex items-center gap-3 rounded-xl px-3.5 py-2 text-xs font-bold transition-all",
+            pathname === "/settings"
+              ? "bg-blue-600 text-white shadow-md"
+              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+          )}
         >
           <Settings className="h-4 w-4 text-slate-500" />
-          <span>الإعدادات العامة</span>
+          <span>الإعدادات العامة (Settings)</span>
         </Link>
       </div>
     </aside>

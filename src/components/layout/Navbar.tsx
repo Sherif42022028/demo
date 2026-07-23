@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Search, Bell, Sun, Moon, Wrench, ShieldCheck, User } from "lucide-react";
+import Link from "next/link";
+import { Search, Bell, Sun, Moon, Wrench, ShieldCheck, LogIn, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface NavbarProps {
@@ -54,19 +55,19 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" />
         </Button>
 
-        {/* User Info */}
-        <div className="flex items-center gap-2 pr-2 border-r border-slate-200 dark:border-slate-800">
+        {/* User Login Profile Link */}
+        <Link href="/login" className="flex items-center gap-2 pr-2 border-r border-slate-200 dark:border-slate-800 group hover:opacity-80 transition-opacity">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-sm shadow-md">
             <User className="h-5 w-5" />
           </div>
           <div className="hidden lg:block text-right">
-            <p className="text-xs font-bold text-slate-900 dark:text-white">أحمد الموصلي</p>
+            <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">أحمد الموصلي</p>
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
               <ShieldCheck className="h-3 w-3 text-emerald-500" />
               <span>{activeRole}</span>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
     </header>
   );
