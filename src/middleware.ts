@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // Audit Logging metadata headers
-  const clientIp = request.headers.get("x-forwarded-for") || request.ip || "127.0.0.1";
+  const clientIp = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "127.0.0.1";
   response.headers.set("x-audit-ip", clientIp);
   response.headers.set("x-audit-timestamp", new Date().toISOString());
 
