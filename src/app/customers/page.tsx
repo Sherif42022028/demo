@@ -1,63 +1,87 @@
 "use client";
 
-import React, { useState } from "react";
-import { Card } from "@/components/ui/card";
+import React, { useState, useEffect } from "react";
 import { CustomTable, Column } from "@/components/ui/custom-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FormDialog } from "@/components/ui/form-dialog";
-import { Users, UserPlus, Phone, CreditCard, History, Search, FileSpreadsheet } from "lucide-react";
+import { UserPlus, FileSpreadsheet, RefreshCw } from "lucide-react";
 
 interface Customer {
   id: string;
   name: string;
   phone: string;
-  address: string;
-  creditLimit: number;
-  balance: number; // positive = owes us, negative = overpaid
-  totalOrders: number;
-  lastDevice: string;
+  altPhone?: string;
+  address?: string;
+  creditLimit: string | number;
+  currentBalance?: string | number;
 }
 
-const mockCustomers: Customer[] = [
-  {
-    id: "1",
-    name: "محمد عبد الرحمن",
-    phone: "01012345678",
-    address: "مدينة نصر - القاهرة",
-    creditLimit: 5000,
-    balance: 1200,
-    totalOrders: 4,
-    lastDevice: "iPhone 13 Pro Max",
-  },
-  {
-    id: "2",
-    name: "سارة محمود",
-    phone: "01198765432",
-    address: "المعادي - القاهرة",
-    creditLimit: 0,
-    balance: 0,
-    totalOrders: 2,
-    lastDevice: "Samsung S22 Ultra",
-  },
-  {
-    id: "3",
-    name: "شركة الفرسان للتجارة (آجل)",
-    phone: "01200001122",
-    address: "وسط البلد - القاهرة",
-    creditLimit: 25000,
-    balance: 8500,
-    totalOrders: 14,
-    lastDevice: "iPad Air 5",
-  },
-];
-
 export default function CustomersPage() {
+  const [customersList, setCustomersList] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const filtered = mockCustomers.filter(
-    (c) => c.name.includes(search) || c.phone.includes(search) || c.lastDevice.includes(search)
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    altPhone: "",
+    address: "",
+    creditLimit: "5000",
+  });
+
+  const fetchCustomers = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/customers");
+      const json = await res.json();
+      if (json.success) {
+        setCustomersList(json.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch customers", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const handleCreateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/api/customers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        setDialogOpen(false);
+        setFormData({ name: "", phone: "", altPhone: "", address: "", creditLimit: "5000" });
+        fetchCustomers();
+      } else {
+        alert(json.error || "تعذر إضافة العميل");
+      }
+    } catch (err) {
+      alert("حدث خطأ أثناء الاتصال بقاعدة البيانات");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const filtered = customersList.filter(
+    (c) =>
+      (c.name || "").includes(search) ||
+      (c.phone || "").includes(search) ||
+      (c.address || "").includes(search)
   );
 
   const columns: Column<Customer>[] = [
@@ -66,7 +90,7 @@ export default function CustomersPage() {
       cell: (c) => (
         <div>
           <p className="font-bold text-slate-900 dark:text-slate-100">{c.name}</p>
-          <p className="text-[11px] text-muted-foreground">{c.address}</p>
+          <p className="text-[11px] text-muted-foreground">{c.address || "لا يوجد عنوان"}</p>
         </div>
       ),
     },
@@ -75,93 +99,124 @@ export default function CustomersPage() {
       cell: (c) => <span className="font-mono text-xs font-bold">{c.phone}</span>,
     },
     {
-      header: "عدد الصيانات",
-      cell: (c) => <Badge variant="secondary">{c.totalOrders} أجهزة</Badge>,
-    },
-    {
       header: "الحد الائتماني (الآجل)",
       cell: (c) => (
         <span className="font-mono font-bold text-slate-600 dark:text-slate-400">
-          {c.creditLimit > 0 ? `${c.creditLimit.toLocaleString("ar-EG")} ج.م` : "نقدي فقط"}
+          {Number(c.creditLimit) > 0 ? `${Number(c.creditLimit).toLocaleString("ar-EG")} ج.م` : "نقدي فقط"}
         </span>
       ),
     },
     {
       header: "رصيد الحساب المالي",
-      cell: (c) => (
-        <span className={`font-mono font-black ${c.balance > 0 ? "text-rose-600" : "text-emerald-600"}`}>
-          {c.balance > 0 ? `مستحق: ${c.balance.toLocaleString("ar-EG")} ج.م` : "خالي من الديون"}
-        </span>
-      ),
-    },
-    {
-      header: "أحدث جهاز صيانة",
-      accessorKey: "lastDevice",
+      cell: (c) => {
+        const bal = Number(c.currentBalance || 0);
+        return (
+          <span className={`font-mono font-black ${bal > 0 ? "text-rose-600" : "text-emerald-600"}`}>
+            {bal > 0 ? `مستحق: ${bal.toLocaleString("ar-EG")} ج.م` : "خالي من الديون"}
+          </span>
+        );
+      },
     },
     {
       header: "إجراءات",
-      cell: (c) => (
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-8 text-xs gap-1">
-            <FileSpreadsheet className="h-3.5 w-3.5 text-blue-600" />
-            <span>كشف حساب</span>
-          </Button>
-        </div>
+      cell: () => (
+        <Button variant="outline" size="sm" className="h-8 text-xs gap-1">
+          <FileSpreadsheet className="h-3.5 w-3.5 text-blue-600" />
+          <span>كشف حساب</span>
+        </Button>
       ),
     },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
           <span className="px-2.5 py-1 text-xs font-black bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 rounded-lg">
-            المرحلة 1: وحدة إدارة العملاء CRM
+            سجل العملاء المباشر (Neon Database CRM)
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
-            سجل العملاء والحسابات الآجلة
+            إدارة حسابات العملاء والمعاملات الآجلة
           </h1>
           <p className="text-xs text-muted-foreground">
-            البحث السريع بالرقم، مراجعة كشوفات الحساب والحد الائتماني وسجل الأجهزة
+            تسجيل العملاء يحفظ فورياً في Neon PostgreSQL ومراجعة كشوفات الحساب
           </p>
         </div>
 
-        <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2">
-          <UserPlus className="h-4 w-4" />
-          <span>إضافة عميل جديد</span>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={fetchCustomers} className="gap-2 text-xs">
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            <span>تحديث</span>
+          </Button>
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs">
+            <UserPlus className="h-4 w-4" />
+            <span>إضافة عميل حقيقي</span>
+          </Button>
+        </div>
       </div>
 
       <CustomTable
         columns={columns}
         data={filtered}
+        isLoading={loading}
         onSearch={(q) => setSearch(q)}
-        searchPlaceholder="بحث باسم العميل، الهاتف، أو الجهاز..."
+        searchPlaceholder="بحث باسم العميل، الهاتف، أو العنوان..."
       />
 
       <FormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title="إضافة عميل جديد"
-        description="تسجيل بيانات العميل والحد الائتماني للمعاملات الآجلة"
+        title="إضافة عميل جديد لقاعدة البيانات"
+        description="سيتم الحفظ المباشر في قاعدة بيانات Neon PostgreSQL"
       >
-        <form onSubmit={(e) => { e.preventDefault(); setDialogOpen(false); }} className="space-y-4 py-2">
+        <form onSubmit={handleCreateCustomer} className="space-y-4 py-2">
           <div>
             <label className="block text-xs font-bold mb-1">اسم العميل بالكامل *</label>
-            <input type="text" required placeholder="محمد علي" className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800" />
+            <input
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="محمد علي"
+              className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+            />
           </div>
           <div>
             <label className="block text-xs font-bold mb-1">رقم الهاتف الأساسي *</label>
-            <input type="text" required placeholder="01012345678" className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono" />
+            <input
+              type="text"
+              required
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="01012345678"
+              className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+            />
           </div>
           <div>
-            <label className="block text-xs font-bold mb-1">الحد الائتماني المعين (للحسابات الآجلة)</label>
-            <input type="number" placeholder="5000" className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono" />
+            <label className="block text-xs font-bold mb-1">العنوان</label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              placeholder="القاهرة - مدينة نصر"
+              className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold mb-1">الحد الائتماني للمعاملات الآجلة (ج.م)</label>
+            <input
+              type="number"
+              value={formData.creditLimit}
+              onChange={(e) => setFormData({ ...formData, creditLimit: e.target.value })}
+              placeholder="5000"
+              className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+            />
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit">حفظ العميل</Button>
+            <Button variant="gradient" type="submit" disabled={submitting}>
+              {submitting ? "جاري الحفظ..." : "حفظ العميل في Neon DB"}
+            </Button>
           </div>
         </form>
       </FormDialog>
