@@ -6,6 +6,7 @@ import { CustomTable, Column } from "@/components/ui/custom-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FormDialog } from "@/components/ui/form-dialog";
+import { TicketTag } from "@/components/ui/ticket-tag";
 import { printThermalReceipt } from "@/lib/print-receipt";
 import {
   Wrench,
@@ -17,6 +18,7 @@ import {
   Printer,
   RefreshCw,
   Filter,
+  Activity,
 } from "lucide-react";
 
 interface WorkOrder {
@@ -52,6 +54,7 @@ export default function DashboardPage() {
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("ALL");
+  const [currentTime, setCurrentTime] = useState("");
 
   const [orgSettings, setOrgSettings] = useState({
     storeName: "مركز تكنو صيانة للأجهزة الذكية",
@@ -98,6 +101,11 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchOrders();
 
+    setCurrentTime(new Date().toLocaleDateString("ar-EG") + " | " + new Date().toLocaleTimeString("en-US"));
+    const interval = setInterval(() => {
+      setCurrentTime(new Date().toLocaleDateString("ar-EG") + " | " + new Date().toLocaleTimeString("en-US"));
+    }, 1000);
+
     fetch("/api/settings")
       .then((res) => res.json())
       .then((json) => {
@@ -108,7 +116,9 @@ export default function DashboardPage() {
           });
         }
       })
-      .catch((err) => console.error("Failed to load org settings for dashboard thermal receipt", err));
+      .catch((err) => console.error("Failed to load org settings", err));
+
+    return () => clearInterval(interval);
   }, []);
 
   const handlePrint = (ticket: WorkOrder) => {
@@ -176,13 +186,9 @@ export default function DashboardPage() {
 
   const columns: Column<WorkOrder>[] = [
     {
-      header: "رقم الأمر",
+      header: "تذكرة الأمر",
       accessorKey: "ticketNumber",
-      cell: (row) => (
-        <span className="font-black text-blue-600 dark:text-blue-400 font-mono">
-          {row.ticketNumber}
-        </span>
-      ),
+      cell: (row) => <TicketTag number={row.ticketNumber} />,
     },
     {
       header: "العميل",
@@ -212,7 +218,7 @@ export default function DashboardPage() {
     {
       header: "التكلفة (ج.م)",
       cell: (row) => (
-        <span className="font-extrabold text-slate-900 dark:text-white font-mono">
+        <span className="font-bold text-slate-900 dark:text-white font-mono">
           {Number(row.finalCost || row.estimatedCost).toLocaleString("en-US")} ج.م
         </span>
       ),
@@ -225,7 +231,7 @@ export default function DashboardPage() {
             variant="outline"
             size="sm"
             onClick={() => handlePrint(row)}
-            className="h-8 text-xs gap-1 font-bold text-blue-600 hover:bg-blue-50"
+            className="h-8 text-xs gap-1 font-bold"
           >
             <Printer className="h-3.5 w-3.5" />
             <span>طباعة الإيصال</span>
@@ -236,71 +242,77 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Top Banner Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 rounded-2xl text-white shadow-xl">
-        <div>
-          <h1 className="text-2xl font-black">أهلاً بك في نظام إدارة الصيانة والمبيعات 👋</h1>
-          <p className="mt-1 text-xs text-blue-100 font-medium">
-            جميع الحركات وأوامر الصيانة تُحفظ وتظهر فورياً عبر نظام المزامنة المباشر.
-          </p>
-        </div>
+    <div className="space-y-6">
+      {/* Industrial Telemetry Status Bar (No gradients, no emojis) */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center">
+            <Activity className="h-5 w-5 text-emerald-600" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-900 dark:text-white">أحمد الموصلي</span>
+              <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-sm">
+                مدير النظام
+              </span>
+            </div>
+            <p className="text-[11px] font-mono text-muted-foreground mt-0.5 dir-ltr text-right">{currentTime}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
+            size="sm"
             onClick={fetchOrders}
-            className="bg-white/20 hover:bg-white/30 text-white border-white/30 gap-2 text-xs"
+            className="gap-2 text-xs"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث البيانات</span>
           </Button>
           <Button
             variant="emerald"
-            size="lg"
+            size="sm"
             onClick={() => setDialogOpen(true)}
-            className="gap-2 shadow-lg text-xs font-bold"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-2 shadow-sm"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4 w-4" />
             <span>إضافة أمر صيانة جديد</span>
           </Button>
         </div>
       </div>
 
-      {/* Metric Cards Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* Industrial Telemetry Cards Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="إجمالي أوامر الصيانة"
           value={`${orders.length.toLocaleString("en-US")} أمر`}
-          description="مسجلة في قاعدة بيانات النظام"
+          description="مسجلة بالنظام"
           icon={Wrench}
-          accentGradient="blue"
         />
         <MetricCard
           title="إجمالي أرباح الصيانة"
           value={`${orders.reduce((sum, o) => sum + Number(o.finalCost || o.estimatedCost || 0), 0).toLocaleString("en-US")} ج.م`}
-          description="مجموع قيم الصيانة المسجلة"
+          description="مجموع قيم الصيانة"
           icon={DollarSign}
-          accentGradient="emerald"
         />
         <MetricCard
           title="الأجهزة قيد الصيانة"
           value={`${orders.filter((o) => o.status === "IN_REPAIR" || o.status === "INSPECTING" || o.status === "NEW").length.toLocaleString("en-US")} أجهزة`}
-          description="في ورشة الصيانة الآن"
+          description="في الورشة الآن"
           icon={CheckCircle2}
-          accentGradient="amber"
         />
         <MetricCard
           title="الأجهزة الجاهزة للتسليم"
           value={`${orders.filter((o) => o.status === "READY").length.toLocaleString("en-US")} أجهزة`}
           description="بانتظار استلام العميل"
           icon={AlertTriangle}
-          accentGradient="purple"
         />
       </div>
 
       {/* Main Table Section with Search & Status Filters */}
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm">
           <div>
             <h2 className="text-sm font-bold text-slate-900 dark:text-white">جدول أوامر الصيانة الرئيسي</h2>
             <p className="text-xs text-muted-foreground">تحديث لحظي لكافة حالات الأجهزة والمعاملات</p>
@@ -312,7 +324,7 @@ export default function DashboardPage() {
             <select
               value={selectedStatusFilter}
               onChange={(e) => setSelectedStatusFilter(e.target.value)}
-              className="p-2 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-bold focus:ring-2 focus:ring-blue-500"
+              className="p-2 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono font-bold focus:ring-2 focus:ring-emerald-500"
             >
               <option value="ALL">جميع الحالات ({orders.length})</option>
               <option value="NEW">جديد ({orders.filter((o) => o.status === "NEW").length})</option>
@@ -335,7 +347,10 @@ export default function DashboardPage() {
           searchPlaceholder="بحث برقم الأمر، اسم العميل، الهاتف، أو الموديل..."
           emptyMessage="لا توجد أوامر صيانة مسجلة حالياً"
           emptyAction={
-            <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2">
+            <Button
+              onClick={() => setDialogOpen(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 text-xs font-bold mt-2"
+            >
               <Plus className="h-4 w-4" />
               <span>إضافة أول أمر صيانة</span>
             </Button>
@@ -360,7 +375,7 @@ export default function DashboardPage() {
                 value={formData.customerName}
                 onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                 placeholder="أحمد علي"
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                 required
               />
             </div>
@@ -371,7 +386,7 @@ export default function DashboardPage() {
                 value={formData.customerPhone}
                 onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
                 placeholder="01012345678"
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                 required
               />
             </div>
@@ -382,7 +397,7 @@ export default function DashboardPage() {
                 value={formData.deviceModel}
                 onChange={(e) => setFormData({ ...formData, deviceModel: e.target.value })}
                 placeholder="iPhone 14 Pro"
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                 required
               />
             </div>
@@ -393,7 +408,7 @@ export default function DashboardPage() {
                 value={formData.imei}
                 onChange={(e) => setFormData({ ...formData, imei: e.target.value })}
                 placeholder="358xxxxxxxxxxxx"
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
               />
             </div>
             <div>
@@ -403,7 +418,7 @@ export default function DashboardPage() {
                 value={formData.devicePassword}
                 onChange={(e) => setFormData({ ...formData, devicePassword: e.target.value })}
                 placeholder="1234"
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
               />
             </div>
             <div>
@@ -413,7 +428,7 @@ export default function DashboardPage() {
                 value={formData.estimatedCost}
                 onChange={(e) => setFormData({ ...formData, estimatedCost: e.target.value })}
                 placeholder="1500"
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                 required
               />
             </div>
@@ -424,7 +439,7 @@ export default function DashboardPage() {
                 value={formData.reportedFault}
                 onChange={(e) => setFormData({ ...formData, reportedFault: e.target.value })}
                 placeholder="الشاشة لا تعمل، توقف الجهاز فجأة..."
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                 required
               />
             </div>
@@ -434,7 +449,11 @@ export default function DashboardPage() {
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>
               إلغاء
             </Button>
-            <Button variant="gradient" type="submit" disabled={submitting} className="gap-2 text-xs">
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2 text-xs"
+            >
               <QrCode className="h-4 w-4" />
               <span>{submitting ? "جاري الحفظ..." : "حفظ أمر الصيانة"}</span>
             </Button>

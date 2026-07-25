@@ -17,6 +17,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ["var(--font-cairo)", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "Courier New", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -35,6 +36,10 @@ export default {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",

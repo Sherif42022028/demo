@@ -6,6 +6,7 @@ import { CustomTable, Column } from "@/components/ui/custom-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FormDialog } from "@/components/ui/form-dialog";
+import { TicketTag } from "@/components/ui/ticket-tag";
 import { DollarSign, ArrowUpRight, ArrowDownLeft, Plus, Wallet, Landmark, RefreshCw } from "lucide-react";
 
 interface Transaction {
@@ -103,8 +104,12 @@ export default function FinancePage() {
       header: "رقم القيد والتاريخ",
       cell: (t) => (
         <div>
-          <span className="font-mono text-xs font-black text-blue-600">{t.id}</span>
-          <p className="text-[11px] text-muted-foreground font-mono">
+          {t.id?.startsWith("WO-") ? (
+            <TicketTag number={t.id} />
+          ) : (
+            <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200">{t.id}</span>
+          )}
+          <p className="text-[11px] text-muted-foreground font-mono mt-0.5">
             {t.createdAt ? new Date(t.createdAt).toLocaleDateString("en-US") : "اليوم"}
           </p>
         </div>
@@ -125,7 +130,7 @@ export default function FinancePage() {
         const amt = Number(t.details?.amount || 0);
         const isIncome = t.action === "مقبوضات" || t.action === "إيراد";
         return (
-          <span className={`font-mono font-black text-sm ${isIncome ? "text-emerald-600" : "text-rose-600"}`}>
+          <span className={`font-mono font-bold text-sm ${isIncome ? "text-emerald-600" : "text-rose-600"}`}>
             {isIncome ? "+" : "-"}{amt.toLocaleString("en-US")} ج.م
           </span>
         );
@@ -135,7 +140,7 @@ export default function FinancePage() {
       header: "الحساب المالي",
       cell: (t) => (
         <span className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
-          <Landmark className="h-3.5 w-3.5 text-blue-500" />
+          <Landmark className="h-3.5 w-3.5 text-slate-500" />
           <span>{t.details?.account || t.entityId || "الخزينة الرئيسية"}</span>
         </span>
       ),
@@ -148,9 +153,9 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-sm border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
-          <span className="px-2.5 py-1 text-xs font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded-lg">
+          <span className="px-2.5 py-1 text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-sm">
             الدفتر المالي والخزينة
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
@@ -166,34 +171,34 @@ export default function FinancePage() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث</span>
           </Button>
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs font-bold">
+          <Button
+            onClick={() => setDialogOpen(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 text-xs font-bold"
+          >
             <Plus className="h-4 w-4" />
             <span>تسجيل حركة مالية جديدة</span>
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="رصيد الخزينة الرئيسية الحالي"
           value={`${netBalance.toLocaleString("en-US")} ج.م`}
           description="السيولة النقذية المتاحة كاش"
           icon={Wallet}
-          accentGradient="emerald"
         />
         <MetricCard
           title="إجمالي المقبوضات"
           value={`${totalIncome.toLocaleString("en-US")} ج.م`}
           description="إيراد صيانة + مبيعات المباشرة"
           icon={ArrowUpRight}
-          accentGradient="blue"
         />
         <MetricCard
           title="إجمالي المصروفات والرواتب"
           value={`${totalExpense.toLocaleString("en-US")} ج.م`}
           description="إيجارات + مرتبات + أدوات ورشة"
           icon={ArrowDownLeft}
-          accentGradient="amber"
         />
       </div>
 
@@ -205,7 +210,10 @@ export default function FinancePage() {
         onRetry={fetchTransactions}
         emptyMessage="لا توجد قيود أو معاملات مالية مسجلة حالياً"
         emptyAction={
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2 font-bold">
+          <Button
+            onClick={() => setDialogOpen(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 text-xs font-bold mt-2"
+          >
             <Plus className="h-4 w-4" />
             <span>تسجيل أول حركة مالية</span>
           </Button>
@@ -220,7 +228,7 @@ export default function FinancePage() {
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-bold"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-bold"
               >
                 <option value="مقبوضات">مقبوضات (إيراد)</option>
                 <option value="مصروفات تشغيل">مصروفات تشغيل (إيجار/مرتبات)</option>
@@ -232,7 +240,7 @@ export default function FinancePage() {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-bold"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-bold"
               >
                 <option value="إيراد صيانة">إيراد صيانة</option>
                 <option value="مبيعات POS">مبيعات POS</option>
@@ -254,7 +262,7 @@ export default function FinancePage() {
                 value={formData.amount}
                 onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                 placeholder="1000"
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
               />
             </div>
             <div>
@@ -262,7 +270,7 @@ export default function FinancePage() {
               <select
                 value={formData.account}
                 onChange={(e) => setFormData({ ...formData, account: e.target.value })}
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
               >
                 <option value="الخزينة الرئيسية">الخزينة الرئيسية</option>
                 <option value="البنك الأهلي المصري">البنك الأهلي المصري</option>
@@ -277,12 +285,12 @@ export default function FinancePage() {
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               placeholder="سداد إيجار / شراء أدوات صيانة..."
-              className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+              className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
             />
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs font-bold">
+            <Button type="submit" disabled={submitting} className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
               {submitting ? "جاري الحفظ..." : "ترحيل القيد المالي"}
             </Button>
           </div>
