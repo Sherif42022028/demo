@@ -18,13 +18,14 @@ import {
   Building2,
   Lock,
   ChevronLeft,
+  Cpu,
 } from "lucide-react";
 
 const navigationItems = [
-  { name: "لوحة التحكم (Dashboard)", href: "/", icon: LayoutDashboard },
-  { name: "استقبال الأجهزة (Intake)", href: "/intake", icon: QrCode },
-  { name: "الورشة والصيانة (Workshop)", href: "/workshop", icon: Wrench },
-  { name: "إدارة العملاء (CRM)", href: "/customers", icon: Users },
+  { name: "لوحة التحكم الرئيسية", href: "/", icon: LayoutDashboard },
+  { name: "استقبال الأجهزة", href: "/intake", icon: QrCode },
+  { name: "الورشة والصيانة", href: "/workshop", icon: Wrench },
+  { name: "إدارة العملاء", href: "/customers", icon: Users },
   { name: "المخزن وقطع الغيار", href: "/inventory", icon: PackageCheck },
   { name: "نقطة البيع (POS)", href: "/pos", icon: ShoppingCart },
   { name: "الدفتر المالي والخزينة", href: "/finance", icon: BookOpen },
@@ -43,11 +44,11 @@ export const Sidebar: React.FC = () => {
         <div className="flex h-16 items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-xl shadow-lg shadow-blue-500/20">
-              ERP
+              <Cpu className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-base font-extrabold text-slate-900 dark:text-white">نظام الصيانة</h1>
-              <p className="text-[10px] text-muted-foreground font-semibold">تكنو صيانة POS v1.0</p>
+              <h1 className="text-base font-extrabold text-slate-900 dark:text-white">تكنو صيانة</h1>
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">نظام ERP & POS متكامل</p>
             </div>
           </div>
         </div>
@@ -91,7 +92,7 @@ export const Sidebar: React.FC = () => {
           )}
         >
           <Lock className="h-4 w-4 text-slate-500" />
-          <span>تسجيل الدخول (Auth)</span>
+          <span>حساب المستخدم والتسجيل</span>
         </Link>
 
         <Link
@@ -104,7 +105,7 @@ export const Sidebar: React.FC = () => {
           )}
         >
           <Settings className="h-4 w-4 text-slate-500" />
-          <span>الإعدادات العامة (Settings)</span>
+          <span>الإعدادات العامة</span>
         </Link>
       </div>
     </aside>

@@ -26,6 +26,7 @@ interface InventoryProduct {
 export default function POSPage() {
   const [products, setProducts] = useState<InventoryProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -92,14 +93,34 @@ export default function POSPage() {
     });
   };
 
-  const handleCheckout = (paymentMethod: string) => {
+  const handleCheckout = async (paymentMethod: string) => {
     if (cart.length === 0) {
       alert("سلة المبيعات فارغة");
       return;
     }
-    setCheckoutSuccess(true);
-    setCart([]);
-    setTimeout(() => setCheckoutSuccess(false), 4000);
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/pos/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: cart, paymentMethod }),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        setCheckoutSuccess(true);
+        setCart([]);
+        fetchProducts(); // Refresh live stock inventory
+        setTimeout(() => setCheckoutSuccess(false), 4000);
+      } else {
+        alert(json.error || "تعذر ترحيل العملية الفاتورة");
+      }
+    } catch (err) {
+      alert("حدث خطأ أثناء الاتصال بالنظام");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const categories = Array.from(new Set(products.map((p) => p.category || "عام")));
@@ -126,7 +147,7 @@ export default function POSPage() {
             شاشة نقطة البيع السريعة
           </h1>
           <p className="text-xs text-muted-foreground">
-            بيع الأصناف والقطع المسجلة بالمخزن مع متابعة الكميات المتاحة لحظياً
+            بيع الأصناف والقطع المسجلة بالمخزن وتوليد قيود مالية تلقائية بالدفتر
           </p>
         </div>
 
@@ -137,8 +158,8 @@ export default function POSPage() {
       </div>
 
       {checkoutSuccess && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-200 text-xs font-bold text-center">
-          ✅ تم إتمام عملية البيع وخصم الفاتورة بنجاح! السلة جاهزة للعملية التالية.
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-200 text-xs font-bold text-center animate-in fade-in">
+          ✅ تم إتمام عملية البيع وخصم الكميات من المخزن وتوليد قيد مالي بالدفتر بنجاح!
         </div>
       )}
 
@@ -302,20 +323,20 @@ export default function POSPage() {
               <Button
                 variant="emerald"
                 className="gap-2 text-xs"
-                disabled={cart.length === 0}
+                disabled={cart.length === 0 || submitting}
                 onClick={() => handleCheckout("كاش")}
               >
                 <DollarSign className="h-4 w-4" />
-                <span>دفع كاش</span>
+                <span>{submitting ? "جاري الترحيل..." : "دفع كاش"}</span>
               </Button>
               <Button
                 variant="gradient"
                 className="gap-2 text-xs"
-                disabled={cart.length === 0}
+                disabled={cart.length === 0 || submitting}
                 onClick={() => handleCheckout("فيزا")}
               >
                 <CreditCard className="h-4 w-4" />
-                <span>شبكة / فيزا</span>
+                <span>{submitting ? "جاري الترحيل..." : "شبكة / فيزا"}</span>
               </Button>
             </div>
           </div>

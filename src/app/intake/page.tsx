@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Printer, User, Smartphone, FileText, CheckCircle2 } from "lucide-react";
+import { Printer, User, Smartphone, FileText, CheckCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 
 export default function IntakePage() {
   const [formData, setFormData] = useState({
@@ -18,6 +18,7 @@ export default function IntakePage() {
     deposit: "500",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [savedTicket, setSavedTicket] = useState<{ ticketNumber: string; qrCodeUrl: string } | null>(null);
 
@@ -92,7 +93,7 @@ export default function IntakePage() {
 
       {/* Main Intake Form */}
       <form onSubmit={handleSubmitIntake} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 p-6 space-y-6 bg-white dark:bg-slate-900">
+        <Card className="lg:col-span-2 p-6 space-y-6 bg-white dark:bg-slate-900 shadow-sm">
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <User className="h-4 w-4 text-blue-600" />
@@ -153,13 +154,26 @@ export default function IntakePage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold mb-1">رمز القفل / الباسورد</label>
-                <input
-                  type="text"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="1234"
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="••••"
+                    className="w-full pr-3 pl-9 py-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1 font-medium">
+                  <ShieldCheck className="h-3 w-3 text-emerald-500" />
+                  <span>بيانات القفل مشفّرة ومحمية</span>
+                </p>
               </div>
               <div>
                 <label className="block text-xs font-semibold mb-1">التكلفة التقديرية (ج.م) *</label>
@@ -188,7 +202,7 @@ export default function IntakePage() {
         </Card>
 
         {/* Thermal Receipt Preview */}
-        <Card className="p-6 bg-amber-50/50 dark:bg-slate-900 border-amber-200 dark:border-slate-800 space-y-4">
+        <Card className="p-6 bg-amber-50/50 dark:bg-slate-900 border-amber-200 dark:border-slate-800 space-y-4 shadow-sm">
           <div className="flex items-center justify-between border-b pb-3">
             <h3 className="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-400 flex items-center gap-1.5">
               <FileText className="h-4 w-4" />
@@ -220,7 +234,7 @@ export default function IntakePage() {
             </div>
           </div>
 
-          <Button variant="emerald" type="submit" disabled={submitting} className="w-full gap-2 py-3 text-xs">
+          <Button variant="emerald" type="submit" disabled={submitting} className="w-full gap-2 py-3 text-xs font-bold">
             <Printer className="h-4 w-4" />
             <span>{submitting ? "جاري الحفظ..." : "حفظ المعاملة وتوليد الإيصال"}</span>
           </Button>
