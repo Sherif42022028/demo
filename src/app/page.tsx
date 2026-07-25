@@ -28,6 +28,8 @@ interface WorkOrder {
   status: "NEW" | "INSPECTING" | "WAITING_PARTS" | "IN_REPAIR" | "READY" | "DELIVERED" | "CANCELLED";
   estimatedCost: string | number;
   finalCost?: string | number;
+  depositPaid?: string | number;
+  qrCodeUrl?: string;
   createdAt?: string;
 }
 
@@ -49,6 +51,7 @@ export default function DashboardPage() {
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("ALL");
+  const [printTicket, setPrintTicket] = useState<WorkOrder | null>(null);
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -90,6 +93,13 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  const handlePrint = (ticket: WorkOrder) => {
+    setPrintTicket(ticket);
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
 
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,13 +193,13 @@ export default function DashboardPage() {
     },
     {
       header: "إجراءات",
-      cell: () => (
+      cell: (row) => (
         <div className="flex items-center gap-1.5">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => window.print()}
-            className="h-8 text-xs gap-1"
+            onClick={() => handlePrint(row)}
+            className="h-8 text-xs gap-1 font-bold text-blue-600 hover:bg-blue-50"
           >
             <Printer className="h-3.5 w-3.5" />
             <span>طباعة الإيصال</span>
@@ -405,6 +415,46 @@ export default function DashboardPage() {
           </div>
         </form>
       </FormDialog>
+
+      {/* Dedicated Thermal Receipt Container for Printing Dashboard Tickets */}
+      {printTicket && (
+        <div id="thermal-receipt" className="hidden print:block bg-white text-black font-mono text-xs p-2 w-[80mm] dir-rtl">
+          <div className="text-center border-b border-dashed border-black pb-2 mb-2">
+            <h2 className="font-bold text-sm">مركز تكنو صيانة للأجهزة</h2>
+            <p className="text-[10px]">الفرع الرئيسي - القاهرة</p>
+            <p className="text-[10px]">{new Date().toLocaleString("ar-EG")}</p>
+          </div>
+
+          <div className="space-y-1 my-2 text-[11px]">
+            <p className="font-bold">رقم الفاتورة: {printTicket.ticketNumber}</p>
+            <p>العميل: {printTicket.customerName || "عميل نقد"}</p>
+            <p>الهاتف: {printTicket.customerPhone || "—"}</p>
+            <p>الجهاز: {printTicket.deviceModel}</p>
+            <p>العطل: {printTicket.reportedFault}</p>
+          </div>
+
+          <div className="border-t border-dashed border-black mt-2 pt-2 space-y-1">
+            <div className="flex justify-between">
+              <span>التكلفة المستحقة:</span>
+              <span>{Number(printTicket.finalCost || printTicket.estimatedCost || 0).toLocaleString("en-US")} ج.م</span>
+            </div>
+            <div className="flex justify-between font-bold border-t border-dashed border-black pt-1">
+              <span>الحالة الحالية:</span>
+              <span>{statusBadgeMap[printTicket.status]?.label || printTicket.status}</span>
+            </div>
+          </div>
+
+          {printTicket.qrCodeUrl && (
+            <div className="flex justify-center my-2">
+              <img src={printTicket.qrCodeUrl} className="w-20 h-20" alt="QR" />
+            </div>
+          )}
+
+          <p className="text-center text-[10px] border-t border-dashed border-black pt-2 mt-2">
+            شكراً لثقتكم بنا! الأجهزة تقع تحت الضمان لمدة 30 يومًا من تاريخ الاستلام.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
