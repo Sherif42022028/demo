@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,10 +11,13 @@ import {
   Save,
   CheckCircle2,
   HardDrive,
+  RefreshCw,
 } from "lucide-react";
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<"general" | "printer" | "whatsapp" | "backup">("general");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   // Form State
@@ -24,7 +27,7 @@ export default function SettingsPage() {
     address: "شارع شريف - وسط البلد - القاهرة",
     taxNo: "394-102-482",
     receiptFooter: "شكراً لثقتكم بنا! الأجهزة تقع تحت الضمان لمدة 30 يوماً من تاريخ الاستلام.",
-    
+
     // Thermal Printer
     paperSize: "80mm",
     printerType: "WEB_SERIAL",
@@ -33,7 +36,7 @@ export default function SettingsPage() {
 
     // WhatsApp API
     whatsappInstanceId: "inst_demo_98210",
-    whatsappApiKey: "ak_live_891280381023810",
+    whatsappApiKey: "••••••••8103",
     sendIntakeMsg: true,
     sendReadyMsg: true,
 
@@ -41,10 +44,62 @@ export default function SettingsPage() {
     autoBackupFrequency: "DAILY",
   });
 
-  const handleSave = (e?: React.FormEvent) => {
+  const fetchSettings = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/settings");
+      const json = await res.json();
+      if (json.success && json.data) {
+        setSettings((prev) => ({
+          ...prev,
+          storeName: json.data.storeName || prev.storeName,
+          phone: json.data.phone || prev.phone,
+          address: json.data.address || prev.address,
+          taxNo: json.data.taxNo || prev.taxNo,
+          receiptFooter: json.data.receiptFooter || prev.receiptFooter,
+          paperSize: json.data.paperSize || prev.paperSize,
+          printerType: json.data.printerType || prev.printerType,
+          baudRate: json.data.baudRate || prev.baudRate,
+          autoPrintOnIntake: json.data.autoPrintOnIntake ?? prev.autoPrintOnIntake,
+          whatsappInstanceId: json.data.whatsappInstanceId || prev.whatsappInstanceId,
+          sendIntakeMsg: json.data.sendIntakeMsg ?? prev.sendIntakeMsg,
+          sendReadyMsg: json.data.sendReadyMsg ?? prev.sendReadyMsg,
+          autoBackupFrequency: json.data.autoBackupFrequency || prev.autoBackupFrequency,
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch settings from DB", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 4000);
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 4000);
+      } else {
+        alert(json.error || "فشل حفظ الإعدادات");
+      }
+    } catch (err) {
+      alert("حدث خطأ أثناء الاتصال بالنظام");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -65,17 +120,28 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        <Button variant="emerald" onClick={() => handleSave()} className="gap-2 font-bold text-xs shadow-md">
-          <Save className="h-4 w-4" />
-          <span>حفظ التغييرات</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={fetchSettings} className="gap-1.5 text-xs">
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            <span>تحديث</span>
+          </Button>
+          <Button
+            variant="emerald"
+            disabled={saving}
+            onClick={() => handleSave()}
+            className="gap-2 font-bold text-xs shadow-md"
+          >
+            <Save className="h-4 w-4" />
+            <span>{saving ? "جاري الحفظ..." : "حفظ التغييرات"}</span>
+          </Button>
+        </div>
       </div>
 
       {saved && (
         <div className="p-4 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-200 flex items-center justify-between animate-in fade-in">
           <div className="flex items-center gap-2 text-xs font-bold">
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-            <span>تم حفظ جميع إعدادات الصفحة وتحديث محرك الطباعة والواتساب بنجاح!</span>
+            <span>تم حفظ جميع الإعدادات في قاعدة البيانات Neon PostgreSQL بنجاح!</span>
           </div>
         </div>
       )}
@@ -265,6 +331,7 @@ export default function SettingsPage() {
                   type="password"
                   value={settings.whatsappApiKey}
                   onChange={(e) => setSettings({ ...settings, whatsappApiKey: e.target.value })}
+                  placeholder="••••••••8103"
                   className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
                 />
               </div>

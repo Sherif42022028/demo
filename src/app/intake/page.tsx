@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Printer, User, Smartphone, FileText, CheckCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
@@ -18,9 +18,28 @@ export default function IntakePage() {
     deposit: "500",
   });
 
+  const [orgSettings, setOrgSettings] = useState({
+    storeName: "مركز تكنو صيانة للأجهزة الذكية",
+    receiptFooter: "شكراً لثقتكم بنا! الأجهزة تقع تحت الضمان لمدة 30 يومًا من تاريخ الاستلام.",
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [savedTicket, setSavedTicket] = useState<{ ticketNumber: string; qrCodeUrl: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          setOrgSettings({
+            storeName: json.data.storeName || "مركز تكنو صيانة للأجهزة الذكية",
+            receiptFooter: json.data.receiptFooter || "شكراً لثقتكم بنا! الأجهزة تقع تحت الضمان لمدة 30 يومًا من تاريخ الاستلام.",
+          });
+        }
+      })
+      .catch((err) => console.error("Failed to load org settings for intake thermal receipt", err));
+  }, []);
 
   const handleSubmitIntake = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -232,7 +251,7 @@ export default function IntakePage() {
 
           <div className="bg-white text-slate-900 p-4 rounded-xl shadow-inner font-mono text-xs space-y-3 border dir-rtl">
             <div className="text-center border-b pb-2">
-              <h2 className="font-extrabold text-sm">مركز تكنو صيانة للأجهزة</h2>
+              <h2 className="font-extrabold text-sm">{orgSettings.storeName}</h2>
               <p className="text-[10px] text-slate-500">الفرع الرئيسي</p>
               {savedTicket ? (
                 <p className="text-[11px] font-bold text-blue-600 mt-1">رقم الفاتورة: {savedTicket.ticketNumber}</p>
@@ -276,7 +295,7 @@ export default function IntakePage() {
       {/* Dedicated Thermal Receipt Container for Printing (Hidden on screen, visible on window.print()) */}
       <div id="thermal-receipt" className="hidden print:block bg-white text-black font-mono text-xs p-2 w-[80mm] dir-rtl">
         <div className="text-center border-b border-dashed border-black pb-2 mb-2">
-          <h2 className="font-bold text-sm">مركز تكنو صيانة للأجهزة</h2>
+          <h2 className="font-bold text-sm">{orgSettings.storeName}</h2>
           <p className="text-[10px]">الفرع الرئيسي - القاهرة</p>
           <p className="text-[10px]">{new Date().toLocaleString("ar-EG")}</p>
         </div>
@@ -312,7 +331,7 @@ export default function IntakePage() {
         )}
 
         <p className="text-center text-[10px] border-t border-dashed border-black pt-2 mt-2">
-          شكراً لثقتكم بنا! الأجهزة تقع تحت الضمان لمدة 30 يومًا من تاريخ الاستلام.
+          {orgSettings.receiptFooter}
         </p>
       </div>
     </div>

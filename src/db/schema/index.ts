@@ -128,3 +128,31 @@ export const auditLogs = pgTable("audit_logs", {
   ipAddress: text("ip_address"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+// 8. Organization Settings Table (Singleton Row for Center/Print/WhatsApp Config)
+export const orgSettings = pgTable("org_settings", {
+  id: text("id").primaryKey(),
+
+  // General
+  storeName: text("store_name").notNull().default("مركز تكنو صيانة للأجهزة الذكية"),
+  phone: text("phone"),
+  address: text("address"),
+  taxNo: text("tax_no"),
+  receiptFooter: text("receipt_footer").default("شكراً لثقتكم بنا! الأجهزة تقع تحت الضمان لمدة 30 يوماً من تاريخ الاستلام."),
+
+  // Thermal Printer
+  paperSize: text("paper_size").default("80mm"),
+  printerType: text("printer_type").default("WEB_SERIAL"),
+  baudRate: text("baud_rate").default("9600"),
+  autoPrintOnIntake: boolean("auto_print_on_intake").default(true),
+
+  // WhatsApp API
+  whatsappInstanceId: text("whatsapp_instance_id"),
+  sendIntakeMsg: boolean("send_intake_msg").default(true),
+  sendReadyMsg: boolean("send_ready_msg").default(true),
+
+  // Backup
+  autoBackupFrequency: text("auto_backup_frequency").default("DAILY"),
+
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});

@@ -53,6 +53,11 @@ export default function DashboardPage() {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("ALL");
   const [printTicket, setPrintTicket] = useState<WorkOrder | null>(null);
 
+  const [orgSettings, setOrgSettings] = useState({
+    storeName: "مركز تكنو صيانة للأجهزة الذكية",
+    receiptFooter: "شكراً لثقتكم بنا! الأجهزة تقع تحت الضمان لمدة 30 يومًا من تاريخ الاستلام.",
+  });
+
   const [formData, setFormData] = useState({
     customerName: "",
     customerPhone: "",
@@ -92,6 +97,18 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchOrders();
+
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          setOrgSettings({
+            storeName: json.data.storeName || "مركز تكنو صيانة للأجهزة الذكية",
+            receiptFooter: json.data.receiptFooter || "شكراً لثقتكم بنا! الأجهزة تقع تحت الضمان لمدة 30 يومًا من تاريخ الاستلام.",
+          });
+        }
+      })
+      .catch((err) => console.error("Failed to load org settings for dashboard thermal receipt", err));
   }, []);
 
   const handlePrint = (ticket: WorkOrder) => {
@@ -420,7 +437,7 @@ export default function DashboardPage() {
       {printTicket && (
         <div id="thermal-receipt" className="hidden print:block bg-white text-black font-mono text-xs p-2 w-[80mm] dir-rtl">
           <div className="text-center border-b border-dashed border-black pb-2 mb-2">
-            <h2 className="font-bold text-sm">مركز تكنو صيانة للأجهزة</h2>
+            <h2 className="font-bold text-sm">{orgSettings.storeName}</h2>
             <p className="text-[10px]">الفرع الرئيسي - القاهرة</p>
             <p className="text-[10px]">{new Date().toLocaleString("ar-EG")}</p>
           </div>
@@ -451,7 +468,7 @@ export default function DashboardPage() {
           )}
 
           <p className="text-center text-[10px] border-t border-dashed border-black pt-2 mt-2">
-            شكراً لثقتكم بنا! الأجهزة تقع تحت الضمان لمدة 30 يومًا من تاريخ الاستلام.
+            {orgSettings.receiptFooter}
           </p>
         </div>
       )}
