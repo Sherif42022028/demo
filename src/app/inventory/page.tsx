@@ -5,7 +5,8 @@ import { CustomTable, Column } from "@/components/ui/custom-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FormDialog } from "@/components/ui/form-dialog";
-import { PackagePlus, Barcode, AlertTriangle, RefreshCw } from "lucide-react";
+import { MetricCard } from "@/components/ui/metric-card";
+import { PackagePlus, Barcode, AlertTriangle, RefreshCw, PackageCheck, Layers } from "lucide-react";
 
 interface Item {
   id: string;
@@ -99,6 +100,8 @@ export default function InventoryPage() {
     }
   };
 
+  const lowStockItems = items.filter((i) => Number(i.stockQty) <= Number(i.minStockLevel));
+
   const filtered = items.filter(
     (i) =>
       (i.name || "").includes(search) ||
@@ -137,13 +140,13 @@ export default function InventoryPage() {
         const isLow = Number(i.stockQty) <= Number(i.minStockLevel);
         return (
           <div className="flex items-center gap-2">
-            <span className={`font-mono font-extrabold text-sm ${isLow ? "text-rose-600" : "text-slate-900 dark:text-white"}`}>
+            <span className={`font-mono font-extrabold text-sm ${isLow ? "text-rose-600 font-black" : "text-slate-900 dark:text-white"}`}>
               {Number(i.stockQty).toLocaleString("en-US")} قطعة
             </span>
             {isLow && (
-              <span className="px-1.5 py-0.5 text-[10px] bg-rose-100 dark:bg-rose-950 text-rose-600 rounded flex items-center gap-1 font-bold">
-                <AlertTriangle className="h-3 w-3" />
-                <span>نقص مخزون</span>
+              <span className="px-2 py-0.5 text-[10px] bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-300 rounded-lg flex items-center gap-1 font-black animate-pulse border border-rose-300">
+                <AlertTriangle className="h-3 w-3 text-rose-600" />
+                <span>نقص مخزون ⚠️</span>
               </span>
             )}
           </div>
@@ -179,6 +182,31 @@ export default function InventoryPage() {
         </div>
       </div>
 
+      {/* Inventory Health Summary Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <MetricCard
+          title="إجمالي أصناف المخزون"
+          value={`${items.length.toLocaleString("en-US")} أصناف`}
+          description="مسجلة بكارت الأصناف والمخازن"
+          icon={PackageCheck}
+          accentGradient="blue"
+        />
+        <MetricCard
+          title="تنبيهات نقص المخزون"
+          value={`${lowStockItems.length.toLocaleString("en-US")} أصناف`}
+          description="وصلت للحد الأدنى للطلب"
+          icon={AlertTriangle}
+          accentGradient="amber"
+        />
+        <MetricCard
+          title="إجمالي قطع الغيار"
+          value={`${items.filter((i) => i.category === "قطعة غيار").length.toLocaleString("en-US")} قطعة`}
+          description="متاحة لورشة الصيانة والمبيعات"
+          icon={Layers}
+          accentGradient="emerald"
+        />
+      </div>
+
       <CustomTable
         columns={columns}
         data={filtered}
@@ -189,7 +217,7 @@ export default function InventoryPage() {
         searchPlaceholder="بحث باسم الصنف، الباركود، أو التصنيف..."
         emptyMessage="لا توجد أصناف مسجلة في المخزون حالياً"
         emptyAction={
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2">
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2 font-bold">
             <PackagePlus className="h-4 w-4" />
             <span>إضافة أول صنف للمخزون</span>
           </Button>
@@ -284,7 +312,7 @@ export default function InventoryPage() {
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs">
+            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs font-bold">
               {submitting ? "جاري الحفظ..." : "حفظ الصنف"}
             </Button>
           </div>

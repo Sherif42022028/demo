@@ -205,7 +205,7 @@ export default function FinancePage() {
         onRetry={fetchTransactions}
         emptyMessage="لا توجد قيود أو معاملات مالية مسجلة حالياً"
         emptyAction={
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2">
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2 font-bold">
             <Plus className="h-4 w-4" />
             <span>تسجيل أول حركة مالية</span>
           </Button>
@@ -220,7 +220,7 @@ export default function FinancePage() {
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-bold"
               >
                 <option value="مقبوضات">مقبوضات (إيراد)</option>
                 <option value="مصروفات تشغيل">مصروفات تشغيل (إيجار/مرتبات)</option>
@@ -228,15 +228,21 @@ export default function FinancePage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold mb-1">التصنيف *</label>
-              <input
-                type="text"
-                required
+              <label className="block text-xs font-bold mb-1">تصنيف الحركة *</label>
+              <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                placeholder="إيجار، صيانة، مرتبات..."
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
-              />
+                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-bold"
+              >
+                <option value="إيراد صيانة">إيراد صيانة</option>
+                <option value="مبيعات POS">مبيعات POS</option>
+                <option value="إيجارات الفروع">إيجارات الفروع</option>
+                <option value="مرتبات وعمولات المهندسين">مرتبات وعمولات المهندسين</option>
+                <option value="فواتير وخدمات (كهرباء/إنترنت)">فواتير وخدمات (كهرباء/إنترنت)</option>
+                <option value="أدوات ومعدات ورشة">أدوات ومعدات ورشة</option>
+                <option value="مشتريات بضاعة وقطع غيار">مشتريات بضاعة وقطع غيار</option>
+                <option value="مصروفات نثرية أخرى">مصروفات نثرية أخرى</option>
+              </select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -276,7 +282,7 @@ export default function FinancePage() {
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs">
+            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs font-bold">
               {submitting ? "جاري الحفظ..." : "ترحيل القيد المالي"}
             </Button>
           </div>

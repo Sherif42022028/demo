@@ -319,10 +319,11 @@ export default function POSPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            {/* Equal Visual Weight Payment Buttons */}
+            <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="emerald"
-                className="gap-2 text-xs"
+                className="gap-2 text-xs font-bold py-3 shadow-md"
                 disabled={cart.length === 0 || submitting}
                 onClick={() => handleCheckout("كاش")}
               >
@@ -330,8 +331,8 @@ export default function POSPage() {
                 <span>{submitting ? "جاري الترحيل..." : "دفع كاش"}</span>
               </Button>
               <Button
-                variant="gradient"
-                className="gap-2 text-xs"
+                variant="default"
+                className="gap-2 text-xs font-bold py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-md"
                 disabled={cart.length === 0 || submitting}
                 onClick={() => handleCheckout("فيزا")}
               >

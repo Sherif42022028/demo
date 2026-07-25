@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import { MetricCard } from "@/components/ui/metric-card";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, FileText, TrendingUp, DollarSign, PieChart, RefreshCw, Calendar } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
+import { FileSpreadsheet, FileText, TrendingUp, DollarSign, PieChart, RefreshCw } from "lucide-react";
 
 export default function ReportsPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -63,6 +64,24 @@ export default function ReportsPage() {
 
   const netProfit = totalMaintenanceRevenue + totalFinanceIncome - totalFinanceExpense;
 
+  const exportToExcel = () => {
+    const csvContent =
+      "data:text/csv;charset=utf-8,\uFEFF" +
+      "البيان,المبلغ (ج.م)\n" +
+      `إجمالي إيراد الصيانة,${totalMaintenanceRevenue}\n` +
+      `إجمالي مقبوضات الخزينة,${totalFinanceIncome}\n` +
+      `خصم المصروفات والرواتب,${totalFinanceExpense}\n` +
+      `صافي الربح النهائي,${netProfit}\n`;
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `تقرير_الأرباح_والخسائر_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -84,47 +103,28 @@ export default function ReportsPage() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث</span>
           </Button>
-          <Button variant="outline" size="sm" className="gap-2 text-xs">
+          <Button variant="outline" size="sm" onClick={exportToExcel} className="gap-2 text-xs font-bold text-emerald-600 hover:bg-emerald-50">
             <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
             <span>تصدير Excel</span>
           </Button>
-          <Button variant="gradient" size="sm" className="gap-2 text-xs">
+          <Button variant="gradient" size="sm" onClick={() => window.print()} className="gap-2 text-xs font-bold">
             <FileText className="h-4 w-4" />
             <span>تحميل PDF</span>
           </Button>
         </div>
       </div>
 
-      {/* Date Range Filter Controls */}
+      {/* Date Range Filter Controls using Custom DatePicker */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <div className="flex items-center gap-2 font-bold text-xs text-slate-700 dark:text-slate-300">
-          <Calendar className="h-4 w-4 text-purple-600" />
-          <span>فلتر النطاق الزمني:</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs">
-          <label className="font-semibold text-slate-500">من:</label>
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="p-2 rounded-lg border bg-white dark:bg-slate-800 font-mono text-xs"
-          />
-        </div>
-        <div className="flex items-center gap-2 text-xs">
-          <label className="font-semibold text-slate-500">إلى:</label>
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="p-2 rounded-lg border bg-white dark:bg-slate-800 font-mono text-xs"
-          />
-        </div>
+        <DatePicker label="من تاريخ:" value={fromDate} onChange={(v) => setFromDate(v)} />
+        <DatePicker label="إلى تاريخ:" value={toDate} onChange={(v) => setToDate(v)} />
+
         {(fromDate || toDate) && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => { setFromDate(""); setToDate(""); }}
-            className="text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50"
+            className="text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 mt-4 sm:mt-0"
           >
             إلغاء الفلتر
           </Button>
@@ -157,7 +157,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Breakdown Table Card */}
-      <Card className="p-6 space-y-4 bg-white dark:bg-slate-900">
+      <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm">
         <h3 className="text-sm font-bold text-slate-900 dark:text-white border-b pb-3">
           بيان الأرباح والخسائر الفعلي (Profit & Loss Breakdown)
         </h3>

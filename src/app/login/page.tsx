@@ -4,8 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Lock, Phone, ShieldCheck, Wrench, UserCheck, AlertCircle, ArrowLeft } from "lucide-react";
+import { Lock, Phone, ShieldCheck, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -59,7 +58,7 @@ export default function LoginPage() {
         {/* Header Logo */}
         <div className="text-center space-y-2">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-black text-2xl shadow-xl shadow-blue-500/20">
-            ERP
+            تكنو
           </div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
             تسجيل الدخول - نظام تكنو صيانة POS
@@ -113,13 +112,13 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button variant="gradient" type="submit" className="w-full h-11 text-xs gap-2" disabled={loading}>
+            <Button variant="gradient" type="submit" className="w-full h-11 text-xs gap-2 font-bold" disabled={loading}>
               {loading ? (
                 <span>جاري المصادقة...</span>
               ) : (
                 <>
                   <ShieldCheck className="h-4 w-4" />
-                  <span>دخول النظام الحقيقي</span>
+                  <span>تسجيل الدخول</span>
                 </>
               )}
             </Button>

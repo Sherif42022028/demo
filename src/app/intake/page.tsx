@@ -70,10 +70,10 @@ export default function IntakePage() {
             </span>
           </div>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
-            نموذج استلام جهاز جديد
+            نموذج استلام جهاز جديد (Live Intake)
           </h1>
           <p className="text-xs text-muted-foreground">
-            تسجيل بيانات الجهاز والعميل وتوليد إيصال حراري وكود QR للعميل
+            تسجيل بيانات الجهاز والعميل ومطابقة الإيصال الحراري لحظياً مع الكتابة
           </p>
         </div>
       </div>
@@ -84,14 +84,14 @@ export default function IntakePage() {
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             <span>تم حفظ الفاتورة بنجاح في النظام برقم: <strong className="font-mono text-base underline">{savedTicket.ticketNumber}</strong></span>
           </div>
-          <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-1 text-xs">
+          <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-1 text-xs font-bold">
             <Printer className="h-3.5 w-3.5" />
             <span>طباعة الإيصال الحراري</span>
           </Button>
         </div>
       )}
 
-      {/* Main Intake Form */}
+      {/* Main Intake Form with Realtime Preview */}
       <form onSubmit={handleSubmitIntake} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 p-6 space-y-6 bg-white dark:bg-slate-900 shadow-sm">
           <div className="space-y-4">
@@ -186,10 +186,30 @@ export default function IntakePage() {
                   required
                 />
               </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1">المبلغ المدفوع (عربون)</label>
+                <input
+                  type="number"
+                  value={formData.deposit}
+                  onChange={(e) => setFormData({ ...formData, deposit: e.target.value })}
+                  placeholder="500"
+                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold mb-1">الملحقات المرفقة</label>
+                <input
+                  type="text"
+                  value={formData.accessories}
+                  onChange={(e) => setFormData({ ...formData, accessories: e.target.value })}
+                  placeholder="جراب، كارت ميموري"
+                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
+                />
+              </div>
               <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold mb-1">وصف العطل المعلن *</label>
                 <textarea
-                  rows={3}
+                  rows={2}
                   value={formData.fault}
                   onChange={(e) => setFormData({ ...formData, fault: e.target.value })}
                   placeholder="لا يشحن، توقف لمس الشاشة..."
@@ -201,12 +221,12 @@ export default function IntakePage() {
           </div>
         </Card>
 
-        {/* Thermal Receipt Preview */}
+        {/* Live Thermal Receipt Preview Card */}
         <Card className="p-6 bg-amber-50/50 dark:bg-slate-900 border-amber-200 dark:border-slate-800 space-y-4 shadow-sm">
           <div className="flex items-center justify-between border-b pb-3">
             <h3 className="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-400 flex items-center gap-1.5">
               <FileText className="h-4 w-4" />
-              <span>الإيصال الحراري المستهدف</span>
+              <span>معاينة الإيصال الحراري (Live Preview)</span>
             </h3>
           </div>
 
@@ -214,22 +234,34 @@ export default function IntakePage() {
             <div className="text-center border-b pb-2">
               <h2 className="font-extrabold text-sm">مركز تكنو صيانة للأجهزة</h2>
               <p className="text-[10px] text-slate-500">الفرع الرئيسي</p>
-              {savedTicket && (
+              {savedTicket ? (
                 <p className="text-[11px] font-bold text-blue-600 mt-1">رقم الفاتورة: {savedTicket.ticketNumber}</p>
+              ) : (
+                <p className="text-[10px] text-slate-400 mt-0.5">معاينة لحظية أثناء الكتابة...</p>
               )}
             </div>
 
             <div className="space-y-1 text-[11px]">
-              <p>العميل: {formData.customerName || "أحمد علي"}</p>
-              <p>الهاتف: {formData.phone || "01012345678"}</p>
-              <p>الجهاز: {formData.deviceModel || "iPhone 14"}</p>
-              <p>العطل: {formData.fault || "تغيير شاشة"}</p>
+              <p><span className="text-slate-400">العميل:</span> <strong className="text-slate-800">{formData.customerName || "—"}</strong></p>
+              <p><span className="text-slate-400">الهاتف:</span> <strong className="text-slate-800">{formData.phone || "—"}</strong></p>
+              <p><span className="text-slate-400">الجهاز:</span> <strong className="text-slate-800">{formData.deviceModel || "—"}</strong></p>
+              {formData.imei && <p><span className="text-slate-400">IMEI:</span> <strong>{formData.imei}</strong></p>}
+              <p><span className="text-slate-400">العطل:</span> <strong>{formData.fault || "—"}</strong></p>
+              <p><span className="text-slate-400">الملحقات:</span> <span>{formData.accessories || "لا يوجد"}</span></p>
             </div>
 
             <div className="border-t pt-2 space-y-1 text-[11px]">
               <div className="flex justify-between">
                 <span>التكلفة التقديرية:</span>
                 <span className="font-bold">{Number(formData.estimatedCost || 0).toLocaleString("en-US")} ج.م</span>
+              </div>
+              <div className="flex justify-between text-emerald-700">
+                <span>المدفوع (عربون):</span>
+                <span className="font-bold">{Number(formData.deposit || 0).toLocaleString("en-US")} ج.م</span>
+              </div>
+              <div className="flex justify-between text-slate-900 border-t pt-1 font-extrabold">
+                <span>المتبقي عند الاستلام:</span>
+                <span>{Math.max(0, Number(formData.estimatedCost || 0) - Number(formData.deposit || 0)).toLocaleString("en-US")} ج.م</span>
               </div>
             </div>
           </div>

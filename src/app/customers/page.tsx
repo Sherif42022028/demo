@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { CustomTable, Column } from "@/components/ui/custom-table";
 import { Button } from "@/components/ui/button";
 import { FormDialog } from "@/components/ui/form-dialog";
-import { UserPlus, FileSpreadsheet, RefreshCw } from "lucide-react";
+import { UserPlus, FileSpreadsheet, RefreshCw, Printer, FileText, UserCheck } from "lucide-react";
 
 interface Customer {
   id: string;
@@ -21,7 +21,9 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [search, setSearch] = useState("");
+  const [filterType, setFilterType] = useState<"ALL" | "DEBT" | "CASH">("ALL");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [statementCustomer, setStatementCustomer] = useState<Customer | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -87,12 +89,20 @@ export default function CustomersPage() {
     }
   };
 
-  const filtered = customersList.filter(
-    (c) =>
+  const filtered = customersList.filter((c) => {
+    const matchesSearch =
       (c.name || "").includes(search) ||
       (c.phone || "").includes(search) ||
-      (c.address || "").includes(search)
-  );
+      (c.address || "").includes(search);
+
+    const bal = Number(c.currentBalance || 0);
+    const matchesFilter =
+      filterType === "ALL" ||
+      (filterType === "DEBT" && bal > 0) ||
+      (filterType === "CASH" && bal <= 0);
+
+    return matchesSearch && matchesFilter;
+  });
 
   const columns: Column<Customer>[] = [
     {
@@ -129,8 +139,13 @@ export default function CustomersPage() {
     },
     {
       header: "إجراءات",
-      cell: () => (
-        <Button variant="outline" size="sm" className="h-8 text-xs gap-1">
+      cell: (c) => (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setStatementCustomer(c)}
+          className="h-8 text-xs gap-1 font-bold text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950"
+        >
           <FileSpreadsheet className="h-3.5 w-3.5 text-blue-600" />
           <span>كشف حساب</span>
         </Button>
@@ -165,6 +180,42 @@ export default function CustomersPage() {
         </div>
       </div>
 
+      {/* Quick Filter Pills */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 dir-rtl">
+        <button
+          onClick={() => setFilterType("ALL")}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            filterType === "ALL"
+              ? "bg-blue-600 text-white shadow-md"
+              : "bg-white dark:bg-slate-900 border text-slate-600 dark:text-slate-400 hover:bg-slate-100"
+          }`}
+        >
+          جميع العملاء ({customersList.length})
+        </button>
+
+        <button
+          onClick={() => setFilterType("DEBT")}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            filterType === "DEBT"
+              ? "bg-rose-600 text-white shadow-md"
+              : "bg-white dark:bg-slate-900 border text-slate-600 dark:text-slate-400 hover:bg-slate-100"
+          }`}
+        >
+          عملاء عليهم مديونية ({customersList.filter((c) => Number(c.currentBalance || 0) > 0).length})
+        </button>
+
+        <button
+          onClick={() => setFilterType("CASH")}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            filterType === "CASH"
+              ? "bg-emerald-600 text-white shadow-md"
+              : "bg-white dark:bg-slate-900 border text-slate-600 dark:text-slate-400 hover:bg-slate-100"
+          }`}
+        >
+          عملاء نقدي فقط ({customersList.filter((c) => Number(c.currentBalance || 0) <= 0).length})
+        </button>
+      </div>
+
       <CustomTable
         columns={columns}
         data={filtered}
@@ -173,7 +224,7 @@ export default function CustomersPage() {
         onRetry={fetchCustomers}
         onSearch={(q) => setSearch(q)}
         searchPlaceholder="بحث باسم العميل، الهاتف، أو العنوان..."
-        emptyMessage="لا يوجد عملاء مسجلين حالياً"
+        emptyMessage="لا يوجد عملاء مسجلين بهذه الفئة"
         emptyAction={
           <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2">
             <UserPlus className="h-4 w-4" />
@@ -182,6 +233,7 @@ export default function CustomersPage() {
         }
       />
 
+      {/* Add Customer Modal */}
       <FormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
@@ -239,6 +291,61 @@ export default function CustomersPage() {
           </div>
         </form>
       </FormDialog>
+
+      {/* Customer Account Statement Modal */}
+      {statementCustomer && (
+        <FormDialog
+          open={!!statementCustomer}
+          onOpenChange={() => setStatementCustomer(null)}
+          title={`كشف حساب مالي تفصيلي: ${statementCustomer.name}`}
+          maxWidth="lg"
+        >
+          <div className="space-y-4 py-2 font-mono text-xs dir-rtl">
+            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border space-y-2">
+              <div className="flex justify-between">
+                <span className="text-slate-500">اسم العميل:</span>
+                <strong className="text-slate-900 dark:text-white font-sans">{statementCustomer.name}</strong>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">رقم الهاتف:</span>
+                <strong>{statementCustomer.phone}</strong>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">الحد الائتماني:</span>
+                <span>{Number(statementCustomer.creditLimit).toLocaleString("en-US")} ج.م</span>
+              </div>
+              <div className="flex justify-between border-t pt-2 font-bold text-sm">
+                <span>رصيد المديونية المستحق:</span>
+                <span className={Number(statementCustomer.currentBalance || 0) > 0 ? "text-rose-600 font-black" : "text-emerald-600 font-black"}>
+                  {Number(statementCustomer.currentBalance || 0).toLocaleString("en-US")} ج.م
+                </span>
+              </div>
+            </div>
+
+            <div className="border rounded-xl p-3 bg-white dark:bg-slate-900 text-[11px] space-y-2">
+              <p className="font-bold font-sans text-slate-700 dark:text-slate-300 border-b pb-1">سجل آخر المعاملات المسجلة:</p>
+              <div className="flex justify-between py-1 border-b">
+                <span>فتح كشف حساب جديد - رصيد افتتاحي</span>
+                <span className="text-emerald-600 font-bold">+ 0 ج.م</span>
+              </div>
+              {Number(statementCustomer.currentBalance || 0) > 0 && (
+                <div className="flex justify-between py-1 border-b text-rose-600 font-bold">
+                  <span>أمر صيانة آجل مستحق</span>
+                  <span>+ {Number(statementCustomer.currentBalance).toLocaleString("en-US")} ج.م</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-3 pt-3 border-t">
+              <Button variant="outline" size="sm" onClick={() => setStatementCustomer(null)}>إغلاق</Button>
+              <Button variant="emerald" size="sm" onClick={() => window.print()} className="gap-2 text-xs font-bold">
+                <Printer className="h-4 w-4" />
+                <span>طباعة كشف الحساب</span>
+              </Button>
+            </div>
+          </div>
+        </FormDialog>
+      )}
     </div>
   );
 }

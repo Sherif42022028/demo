@@ -5,7 +5,7 @@ import { CustomTable, Column } from "@/components/ui/custom-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FormDialog } from "@/components/ui/form-dialog";
-import { Plus, MapPin, Phone, RefreshCw, Building2 } from "lucide-react";
+import { Plus, MapPin, Phone, RefreshCw, Users } from "lucide-react";
 
 interface Branch {
   id: string;
@@ -113,6 +113,15 @@ export default function BranchesPage() {
       ),
     },
     {
+      header: "المستخدمين والصلاحيات المخصصة",
+      cell: () => (
+        <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+          <Users className="h-4 w-4 text-blue-500" />
+          <span className="font-bold">مدير، مهندس، استقبال</span>
+        </div>
+      ),
+    },
+    {
       header: "حالة الفرع",
       cell: (b) => (
         <Badge variant={b.isActive ? "success" : "destructive"}>
@@ -127,13 +136,13 @@ export default function BranchesPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
           <span className="px-2.5 py-1 text-xs font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded-lg">
-            إدارة الفروع والمقرات
+            إدارة الفروع والصلاحيات
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
-            شجرة الفروع والمقرات الرئيسية
+            شجرة الفروع والمقرات والصلاحيات
           </h1>
           <p className="text-xs text-muted-foreground">
-            تسجيل وتخصيص الفروع وتتبع صلاحيات الوصول لكل فرع
+            تسجيل وتخصيص الفروع وتتبع صلاحيات الوصول لكل فرع ومقر صيانة
           </p>
         </div>
 
@@ -157,7 +166,7 @@ export default function BranchesPage() {
         onRetry={fetchBranches}
         emptyMessage="لا توجد فروع مسجلة حالياً"
         emptyAction={
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2">
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2 font-bold">
             <Plus className="h-4 w-4" />
             <span>إضافة فرع جديد</span>
           </Button>
@@ -211,7 +220,7 @@ export default function BranchesPage() {
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs">
+            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs font-bold">
               {submitting ? "جاري الحفظ..." : "حفظ الفرع"}
             </Button>
           </div>

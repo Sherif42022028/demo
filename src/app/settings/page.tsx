@@ -3,9 +3,7 @@
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
-  Settings,
   Printer,
   MessageSquare,
   Database,
@@ -13,8 +11,6 @@ import {
   Save,
   CheckCircle2,
   HardDrive,
-  Globe,
-  Sliders,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -45,16 +41,16 @@ export default function SettingsPage() {
     autoBackupFrequency: "DAILY",
   });
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setSaved(true);
     setTimeout(() => setSaved(false), 4000);
   };
 
   return (
     <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      {/* Top Banner Header with Unified Primary Save Button */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm sticky top-16 z-30">
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-1 text-xs font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded-lg">
@@ -69,9 +65,9 @@ export default function SettingsPage() {
           </p>
         </div>
 
-        <Button variant="emerald" onClick={handleSave} className="gap-2">
+        <Button variant="emerald" onClick={() => handleSave()} className="gap-2 font-bold text-xs shadow-md">
           <Save className="h-4 w-4" />
-          <span>حفظ كافة التغييرات</span>
+          <span>حفظ التغييرات</span>
         </Button>
       </div>
 
@@ -79,7 +75,7 @@ export default function SettingsPage() {
         <div className="p-4 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-200 flex items-center justify-between animate-in fade-in">
           <div className="flex items-center gap-2 text-xs font-bold">
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-            <span>تم حفظ جميع الإعدادات وتحديث محرك الطباعة والواتساب بنجاح!</span>
+            <span>تم حفظ جميع إعدادات الصفحة وتحديث محرك الطباعة والواتساب بنجاح!</span>
           </div>
         </div>
       )}
@@ -138,7 +134,7 @@ export default function SettingsPage() {
       {/* Settings Form Content */}
       <form onSubmit={handleSave}>
         {activeTab === "general" && (
-          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900">
+          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm">
             <h3 className="text-sm font-bold border-b pb-3 text-slate-900 dark:text-white">
               البيانات الرئيسية للمركز (تظهر أعلى وأسفل الفواتير والإيصالات)
             </h3>
@@ -200,7 +196,7 @@ export default function SettingsPage() {
         )}
 
         {activeTab === "printer" && (
-          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900">
+          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm">
             <h3 className="text-sm font-bold border-b pb-3 text-slate-900 dark:text-white">
               إعدادات الطابعة الحرارية Direct ESC/POS Thermal Printer
             </h3>
@@ -247,7 +243,7 @@ export default function SettingsPage() {
         )}
 
         {activeTab === "whatsapp" && (
-          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900">
+          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm">
             <h3 className="text-sm font-bold border-b pb-3 text-slate-900 dark:text-white">
               إعدادات حساب واتساب للأتمتة التلقائية (WhatsApp Evolution/WPP API)
             </h3>
@@ -299,7 +295,7 @@ export default function SettingsPage() {
         )}
 
         {activeTab === "backup" && (
-          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900">
+          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm">
             <h3 className="text-sm font-bold border-b pb-3 text-slate-900 dark:text-white">
               إدارة النسخ الاحتياطي لقواعد البيانات والربط السحابي
             </h3>
@@ -310,7 +306,7 @@ export default function SettingsPage() {
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white">تحميل نسخة احتياطية فورية (.sql / .enc)</h4>
                   <p className="text-[11px] text-muted-foreground">تصدير جميع الفواتير والعملاء وأوامر الصيانة بحالة مشفرة</p>
                 </div>
-                <Button variant="gradient" size="sm" type="button" className="gap-2 text-xs">
+                <Button variant="gradient" size="sm" type="button" className="gap-2 text-xs font-bold">
                   <HardDrive className="h-4 w-4" />
                   <span>تصدير نسخة الآن</span>
                 </Button>
@@ -321,7 +317,7 @@ export default function SettingsPage() {
                 <select
                   value={settings.autoBackupFrequency}
                   onChange={(e) => setSettings({ ...settings, autoBackupFrequency: e.target.value })}
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
+                  className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
                 >
                   <option value="HOURLY">كل ساعة</option>
                   <option value="DAILY">يومياً عند منتصف الليل (موصى به)</option>
@@ -331,13 +327,6 @@ export default function SettingsPage() {
             </div>
           </Card>
         )}
-
-        <div className="pt-4 flex justify-end">
-          <Button variant="emerald" type="submit" className="gap-2">
-            <Save className="h-4 w-4" />
-            <span>حفظ الإعدادات</span>
-          </Button>
-        </div>
       </form>
     </div>
   );

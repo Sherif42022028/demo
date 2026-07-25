@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeftRight, RefreshCw, Search, Wrench, AlertCircle } from "lucide-react";
+import { ArrowLeftRight, RefreshCw, Search, CheckCircle2, AlertCircle } from "lucide-react";
 
 type MaintenanceStatus = "NEW" | "INSPECTING" | "WAITING_PARTS" | "IN_REPAIR" | "READY" | "DELIVERED";
 
@@ -176,7 +176,7 @@ export default function WorkshopPage() {
                       key={ticket.id}
                       onClick={() => setSelectedTicket(ticket)}
                       className={`p-4 cursor-pointer transition-all duration-200 hover:border-blue-500 ${
-                        selectedTicket?.id === ticket.id ? "ring-2 ring-blue-500 shadow-md" : ""
+                        selectedTicket?.id === ticket.id ? "ring-2 ring-blue-500 shadow-md border-blue-500" : ""
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1.5">
@@ -200,7 +200,7 @@ export default function WorkshopPage() {
         })}
       </div>
 
-      {/* Engineer Inspection & Spare Parts Desk */}
+      {/* Engineer Inspection & Spare Parts Desk with High Contrast Status Buttons */}
       {selectedTicket && (
         <Card className="p-6 space-y-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
@@ -214,44 +214,32 @@ export default function WorkshopPage() {
               </h2>
             </div>
 
-            {/* Quick Status Changers */}
+            {/* High Contrast Status Buttons with Active Checkmarks */}
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant={selectedTicket.status === "INSPECTING" ? "default" : "outline"}
-                size="sm"
-                disabled={updating}
-                onClick={() => moveTicketStatus(selectedTicket.id, "INSPECTING")}
-                className="text-xs"
-              >
-                جاري الفحص
-              </Button>
-              <Button
-                variant={selectedTicket.status === "WAITING_PARTS" ? "default" : "outline"}
-                size="sm"
-                disabled={updating}
-                onClick={() => moveTicketStatus(selectedTicket.id, "WAITING_PARTS")}
-                className="text-xs"
-              >
-                انتظار قطع
-              </Button>
-              <Button
-                variant={selectedTicket.status === "IN_REPAIR" ? "default" : "outline"}
-                size="sm"
-                disabled={updating}
-                onClick={() => moveTicketStatus(selectedTicket.id, "IN_REPAIR")}
-                className="text-xs"
-              >
-                جاري الإصلاح
-              </Button>
-              <Button
-                variant={selectedTicket.status === "READY" ? "emerald" : "outline"}
-                size="sm"
-                disabled={updating}
-                onClick={() => moveTicketStatus(selectedTicket.id, "READY")}
-                className="text-xs"
-              >
-                جاهز للتسليم
-              </Button>
+              {[
+                { status: "INSPECTING" as const, label: "جاري الفحص" },
+                { status: "WAITING_PARTS" as const, label: "انتظار قطع" },
+                { status: "IN_REPAIR" as const, label: "جاري الإصلاح" },
+                { status: "READY" as const, label: "جاهز للتسليم" },
+              ].map((btn) => {
+                const isActive = selectedTicket.status === btn.status;
+                return (
+                  <Button
+                    key={btn.status}
+                    type="button"
+                    disabled={updating}
+                    onClick={() => moveTicketStatus(selectedTicket.id, btn.status)}
+                    className={`text-xs gap-1.5 transition-all font-bold ${
+                      isActive
+                        ? "bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-2 shadow-md hover:bg-blue-700"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
+                    }`}
+                  >
+                    {isActive && <CheckCircle2 className="h-4 w-4 text-white" />}
+                    <span>{btn.label}</span>
+                  </Button>
+                );
+              })}
             </div>
           </div>
         </Card>
