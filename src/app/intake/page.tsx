@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Printer, User, Smartphone, FileText, CheckCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { printThermalReceipt } from "@/lib/print-receipt";
 
 export default function IntakePage() {
   const [formData, setFormData] = useState({
@@ -40,6 +41,22 @@ export default function IntakePage() {
       })
       .catch((err) => console.error("Failed to load org settings for intake thermal receipt", err));
   }, []);
+
+  const handlePrint = () => {
+    printThermalReceipt({
+      ticketNumber: savedTicket?.ticketNumber,
+      customerName: formData.customerName,
+      phone: formData.phone,
+      deviceModel: formData.deviceModel,
+      imei: formData.imei,
+      fault: formData.fault,
+      estimatedCost: formData.estimatedCost,
+      deposit: formData.deposit,
+      storeName: orgSettings.storeName,
+      receiptFooter: orgSettings.receiptFooter,
+      qrCodeUrl: savedTicket?.qrCodeUrl,
+    });
+  };
 
   const handleSubmitIntake = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,7 +120,7 @@ export default function IntakePage() {
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             <span>تم حفظ الفاتورة بنجاح في النظام برقم: <strong className="font-mono text-base underline">{savedTicket.ticketNumber}</strong></span>
           </div>
-          <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-1 text-xs font-bold">
+          <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1 text-xs font-bold">
             <Printer className="h-3.5 w-3.5" />
             <span>طباعة الإيصال الحراري</span>
           </Button>
@@ -291,49 +308,6 @@ export default function IntakePage() {
           </Button>
         </Card>
       </form>
-
-      {/* Dedicated Thermal Receipt Container for Printing (Hidden on screen, visible on window.print()) */}
-      <div id="thermal-receipt" className="hidden print:block bg-white text-black font-mono text-xs p-2 w-[80mm] dir-rtl">
-        <div className="text-center border-b border-dashed border-black pb-2 mb-2">
-          <h2 className="font-bold text-sm">{orgSettings.storeName}</h2>
-          <p className="text-[10px]">الفرع الرئيسي - القاهرة</p>
-          <p className="text-[10px]">{new Date().toLocaleString("ar-EG")}</p>
-        </div>
-
-        <div className="space-y-1 my-2">
-          {savedTicket?.ticketNumber && <p className="font-bold">رقم الفاتورة: {savedTicket.ticketNumber}</p>}
-          <p>العميل: {formData.customerName || "—"}</p>
-          <p>الهاتف: {formData.phone || "—"}</p>
-          <p>الجهاز: {formData.deviceModel || "—"}</p>
-          {formData.imei && <p>IMEI: {formData.imei}</p>}
-          <p>العطل: {formData.fault || "—"}</p>
-        </div>
-
-        <div className="border-t border-dashed border-black mt-2 pt-2 space-y-1">
-          <div className="flex justify-between">
-            <span>التكلفة التقديرية:</span>
-            <span>{Number(formData.estimatedCost || 0).toLocaleString("en-US")} ج.م</span>
-          </div>
-          <div className="flex justify-between">
-            <span>عربون مدفوع:</span>
-            <span>{Number(formData.deposit || 0).toLocaleString("en-US")} ج.م</span>
-          </div>
-          <div className="flex justify-between font-bold border-t border-dashed border-black pt-1">
-            <span>المتبقي عند الاستلام:</span>
-            <span>{Math.max(0, Number(formData.estimatedCost || 0) - Number(formData.deposit || 0)).toLocaleString("en-US")} ج.م</span>
-          </div>
-        </div>
-
-        {savedTicket?.qrCodeUrl && (
-          <div className="flex justify-center my-2">
-            <img src={savedTicket.qrCodeUrl} className="w-20 h-20" alt="QR" />
-          </div>
-        )}
-
-        <p className="text-center text-[10px] border-t border-dashed border-black pt-2 mt-2">
-          {orgSettings.receiptFooter}
-        </p>
-      </div>
     </div>
   );
 }
