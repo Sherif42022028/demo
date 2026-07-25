@@ -90,7 +90,7 @@ export default function BranchesPage() {
       header: "كود واسم الفرع",
       cell: (b) => (
         <div>
-          <span className="font-mono text-xs font-black text-blue-600 bg-blue-50 dark:bg-blue-950 px-2 py-0.5 rounded">
+          <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-sm border border-slate-300 dark:border-slate-700">
             {b.code}
           </span>
           <p className="font-bold text-slate-900 dark:text-slate-100 mt-1">{b.name}</p>
@@ -116,7 +116,7 @@ export default function BranchesPage() {
       header: "المستخدمين والصلاحيات المخصصة",
       cell: () => (
         <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
-          <Users className="h-4 w-4 text-blue-500" />
+          <Users className="h-4 w-4 text-slate-500" />
           <span className="font-bold">مدير، مهندس، استقبال</span>
         </div>
       ),
@@ -133,9 +133,9 @@ export default function BranchesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-sm border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
-          <span className="px-2.5 py-1 text-xs font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded-lg">
+          <span className="px-2 py-0.5 text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-sm">
             إدارة الفروع والصلاحيات
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
@@ -151,7 +151,10 @@ export default function BranchesPage() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث</span>
           </Button>
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs font-bold">
+          <Button
+            onClick={() => setDialogOpen(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 text-xs font-bold"
+          >
             <Plus className="h-4 w-4" />
             <span>إضافة فرع جديد</span>
           </Button>
@@ -166,7 +169,10 @@ export default function BranchesPage() {
         onRetry={fetchBranches}
         emptyMessage="لا توجد فروع مسجلة حالياً"
         emptyAction={
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2 font-bold">
+          <Button
+            onClick={() => setDialogOpen(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 text-xs mt-2 font-bold"
+          >
             <Plus className="h-4 w-4" />
             <span>إضافة فرع جديد</span>
           </Button>
@@ -184,7 +190,7 @@ export default function BranchesPage() {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="فرع الإسكندرية - سموحة"
-              className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+              className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
             />
           </div>
           <div>
@@ -195,7 +201,7 @@ export default function BranchesPage() {
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value })}
               placeholder="BR-02"
-              className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+              className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
             />
           </div>
           <div>
@@ -205,7 +211,7 @@ export default function BranchesPage() {
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               placeholder="شارع سموحة الرئيسي"
-              className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+              className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
             />
           </div>
           <div>
@@ -215,12 +221,16 @@ export default function BranchesPage() {
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               placeholder="01112345678"
-              className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+              className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
             />
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs font-bold">
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
+            >
               {submitting ? "جاري الحفظ..." : "حفظ الفرع"}
             </Button>
           </div>

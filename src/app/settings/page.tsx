@@ -105,10 +105,10 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       {/* Top Banner Header with Unified Primary Save Button */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm sticky top-16 z-30">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-sm border border-slate-200 dark:border-slate-800 shadow-sm sticky top-16 z-30">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 text-xs font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded-lg">
+            <span className="px-2 py-0.5 text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-sm">
               الإعدادات العامة بالنظام
             </span>
           </div>
@@ -126,10 +126,9 @@ export default function SettingsPage() {
             <span>تحديث</span>
           </Button>
           <Button
-            variant="emerald"
             disabled={saving}
             onClick={() => handleSave()}
-            className="gap-2 font-bold text-xs shadow-md"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-2 shadow-sm"
           >
             <Save className="h-4 w-4" />
             <span>{saving ? "جاري الحفظ..." : "حفظ التغييرات"}</span>
@@ -138,7 +137,7 @@ export default function SettingsPage() {
       </div>
 
       {saved && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-200 flex items-center justify-between animate-in fade-in">
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 rounded-sm text-emerald-900 dark:text-emerald-200 flex items-center justify-between animate-in fade-in">
           <div className="flex items-center gap-2 text-xs font-bold">
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
             <span>تم حفظ جميع الإعدادات في قاعدة البيانات Neon PostgreSQL بنجاح!</span>
@@ -147,13 +146,13 @@ export default function SettingsPage() {
       )}
 
       {/* Tabs Row */}
-      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
+      <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto font-mono">
         <button
           onClick={() => setActiveTab("general")}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 text-xs font-bold rounded-sm border transition-all ${
             activeTab === "general"
-              ? "bg-blue-600 text-white shadow-md"
-              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-slate-900 dark:border-slate-100 shadow-sm"
+              : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
           }`}
         >
           <Building className="h-4 w-4" />
@@ -162,10 +161,10 @@ export default function SettingsPage() {
 
         <button
           onClick={() => setActiveTab("printer")}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 text-xs font-bold rounded-sm border transition-all ${
             activeTab === "printer"
-              ? "bg-blue-600 text-white shadow-md"
-              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-slate-900 dark:border-slate-100 shadow-sm"
+              : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
           }`}
         >
           <Printer className="h-4 w-4" />
@@ -174,10 +173,10 @@ export default function SettingsPage() {
 
         <button
           onClick={() => setActiveTab("whatsapp")}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 text-xs font-bold rounded-sm border transition-all ${
             activeTab === "whatsapp"
-              ? "bg-blue-600 text-white shadow-md"
-              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-slate-900 dark:border-slate-100 shadow-sm"
+              : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
           }`}
         >
           <MessageSquare className="h-4 w-4" />
@@ -186,10 +185,10 @@ export default function SettingsPage() {
 
         <button
           onClick={() => setActiveTab("backup")}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 text-xs font-bold rounded-sm border transition-all ${
             activeTab === "backup"
-              ? "bg-blue-600 text-white shadow-md"
-              : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+              ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 border-slate-900 dark:border-slate-100 shadow-sm"
+              : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
           }`}
         >
           <Database className="h-4 w-4" />
@@ -200,7 +199,7 @@ export default function SettingsPage() {
       {/* Settings Form Content */}
       <form onSubmit={handleSave}>
         {activeTab === "general" && (
-          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm">
+          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm rounded-sm">
             <h3 className="text-sm font-bold border-b pb-3 text-slate-900 dark:text-white">
               البيانات الرئيسية للمركز (تظهر أعلى وأسفل الفواتير والإيصالات)
             </h3>
@@ -212,7 +211,7 @@ export default function SettingsPage() {
                   type="text"
                   value={settings.storeName}
                   onChange={(e) => setSettings({ ...settings, storeName: e.target.value })}
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                   required
                 />
               </div>
@@ -223,7 +222,7 @@ export default function SettingsPage() {
                   type="text"
                   value={settings.phone}
                   onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                   required
                 />
               </div>
@@ -234,7 +233,7 @@ export default function SettingsPage() {
                   type="text"
                   value={settings.taxNo}
                   onChange={(e) => setSettings({ ...settings, taxNo: e.target.value })}
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                 />
               </div>
 
@@ -244,7 +243,7 @@ export default function SettingsPage() {
                   type="text"
                   value={settings.address}
                   onChange={(e) => setSettings({ ...settings, address: e.target.value })}
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                 />
               </div>
 
@@ -254,7 +253,7 @@ export default function SettingsPage() {
                   rows={3}
                   value={settings.receiptFooter}
                   onChange={(e) => setSettings({ ...settings, receiptFooter: e.target.value })}
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                 />
               </div>
             </div>
@@ -262,7 +261,7 @@ export default function SettingsPage() {
         )}
 
         {activeTab === "printer" && (
-          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm">
+          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm rounded-sm">
             <h3 className="text-sm font-bold border-b pb-3 text-slate-900 dark:text-white">
               إعدادات الطابعة الحرارية Direct ESC/POS Thermal Printer
             </h3>
@@ -273,7 +272,7 @@ export default function SettingsPage() {
                 <select
                   value={settings.paperSize}
                   onChange={(e) => setSettings({ ...settings, paperSize: e.target.value })}
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                 >
                   <option value="80mm">80mm (مقاس ستاندرد واسع)</option>
                   <option value="58mm">58mm (مقاس صغير)</option>
@@ -285,7 +284,7 @@ export default function SettingsPage() {
                 <select
                   value={settings.baudRate}
                   onChange={(e) => setSettings({ ...settings, baudRate: e.target.value })}
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                 >
                   <option value="9600">9600 (افتراضي)</option>
                   <option value="19200">19200</option>
@@ -299,7 +298,7 @@ export default function SettingsPage() {
                     type="checkbox"
                     checked={settings.autoPrintOnIntake}
                     onChange={(e) => setSettings({ ...settings, autoPrintOnIntake: e.target.checked })}
-                    className="h-4 w-4 rounded border-slate-300 text-blue-600"
+                    className="h-4 w-4 rounded-sm border-slate-300 text-emerald-600"
                   />
                   <span>طباعة الإيصال فورياً عند إتمام خطوة استلام الجهاز بدون فتح نافذة الطباعة</span>
                 </label>
@@ -309,7 +308,7 @@ export default function SettingsPage() {
         )}
 
         {activeTab === "whatsapp" && (
-          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm">
+          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm rounded-sm">
             <h3 className="text-sm font-bold border-b pb-3 text-slate-900 dark:text-white">
               إعدادات حساب واتساب للأتمتة التلقائية (WhatsApp Evolution/WPP API)
             </h3>
@@ -321,7 +320,7 @@ export default function SettingsPage() {
                   type="text"
                   value={settings.whatsappInstanceId}
                   onChange={(e) => setSettings({ ...settings, whatsappInstanceId: e.target.value })}
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                 />
               </div>
 
@@ -332,7 +331,7 @@ export default function SettingsPage() {
                   value={settings.whatsappApiKey}
                   onChange={(e) => setSettings({ ...settings, whatsappApiKey: e.target.value })}
                   placeholder="••••••••8103"
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                 />
               </div>
 
@@ -342,7 +341,7 @@ export default function SettingsPage() {
                     type="checkbox"
                     checked={settings.sendIntakeMsg}
                     onChange={(e) => setSettings({ ...settings, sendIntakeMsg: e.target.checked })}
-                    className="h-4 w-4 rounded border-slate-300 text-emerald-600"
+                    className="h-4 w-4 rounded-sm border-slate-300 text-emerald-600"
                   />
                   <span>إرسال رسالة واتساب أوتوماتيكية للعميل عند استلام الجهاز بها رابط كود QR للتتبع</span>
                 </label>
@@ -352,7 +351,7 @@ export default function SettingsPage() {
                     type="checkbox"
                     checked={settings.sendReadyMsg}
                     onChange={(e) => setSettings({ ...settings, sendReadyMsg: e.target.checked })}
-                    className="h-4 w-4 rounded border-slate-300 text-emerald-600"
+                    className="h-4 w-4 rounded-sm border-slate-300 text-emerald-600"
                   />
                   <span>إرسال رسالة واتساب أوتوماتيكية للعميل فور تغيّر حالة الجهاز إلى "جاهز للتسليم"</span>
                 </label>
@@ -362,18 +361,18 @@ export default function SettingsPage() {
         )}
 
         {activeTab === "backup" && (
-          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm">
+          <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm rounded-sm">
             <h3 className="text-sm font-bold border-b pb-3 text-slate-900 dark:text-white">
               إدارة النسخ الاحتياطي لقواعد البيانات والربط السحابي
             </h3>
 
             <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl border bg-slate-50 dark:bg-slate-800">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-sm border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
                 <div>
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white">تحميل نسخة احتياطية فورية (.sql / .enc)</h4>
                   <p className="text-[11px] text-muted-foreground">تصدير جميع الفواتير والعملاء وأوامر الصيانة بحالة مشفرة</p>
                 </div>
-                <Button variant="gradient" size="sm" type="button" className="gap-2 text-xs font-bold">
+                <Button size="sm" type="button" className="gap-2 text-xs font-bold bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900">
                   <HardDrive className="h-4 w-4" />
                   <span>تصدير نسخة الآن</span>
                 </Button>
@@ -384,7 +383,7 @@ export default function SettingsPage() {
                 <select
                   value={settings.autoBackupFrequency}
                   onChange={(e) => setSettings({ ...settings, autoBackupFrequency: e.target.value })}
-                  className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                 >
                   <option value="HOURLY">كل ساعة</option>
                   <option value="DAILY">يومياً عند منتصف الليل (موصى به)</option>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { TicketTag } from "@/components/ui/ticket-tag";
 import { Printer, User, Smartphone, FileText, CheckCircle2, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { printThermalReceipt } from "@/lib/print-receipt";
 
@@ -98,10 +99,10 @@ export default function IntakePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-sm border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 text-xs font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded-lg">
+            <span className="px-2 py-0.5 text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-sm">
               استقبال الأجهزة والطلبات
             </span>
           </div>
@@ -115,10 +116,12 @@ export default function IntakePage() {
       </div>
 
       {savedTicket && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-200 flex items-center justify-between animate-in fade-in">
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 rounded-sm text-emerald-900 dark:text-emerald-200 flex items-center justify-between animate-in fade-in">
           <div className="flex items-center gap-2 text-xs font-bold">
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-            <span>تم حفظ الفاتورة بنجاح في النظام برقم: <strong className="font-mono text-base underline">{savedTicket.ticketNumber}</strong></span>
+            <span className="flex items-center gap-1">
+              تم حفظ الفاتورة بنجاح في النظام برقم: <TicketTag number={savedTicket.ticketNumber} />
+            </span>
           </div>
           <Button variant="outline" size="sm" onClick={handlePrint} className="gap-1 text-xs font-bold">
             <Printer className="h-3.5 w-3.5" />
@@ -129,10 +132,10 @@ export default function IntakePage() {
 
       {/* Main Intake Form with Realtime Preview */}
       <form onSubmit={handleSubmitIntake} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 p-6 space-y-6 bg-white dark:bg-slate-900 shadow-sm">
+        <Card className="lg:col-span-2 p-6 space-y-6 bg-white dark:bg-slate-900 shadow-sm rounded-sm">
           <div className="space-y-4">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <User className="h-4 w-4 text-blue-600" />
+              <User className="h-4 w-4 text-slate-500" />
               <span>1. بيانات العميل</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -143,7 +146,7 @@ export default function IntakePage() {
                   value={formData.customerName}
                   onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                   placeholder="مثال: علي حسن محمود"
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                   required
                 />
               </div>
@@ -154,7 +157,7 @@ export default function IntakePage() {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="01012345678"
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                   required
                 />
               </div>
@@ -163,7 +166,7 @@ export default function IntakePage() {
 
           <div className="space-y-4 pt-4 border-t">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <Smartphone className="h-4 w-4 text-purple-600" />
+              <Smartphone className="h-4 w-4 text-slate-500" />
               <span>2. مواصفات الجهاز والعطل</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -174,7 +177,7 @@ export default function IntakePage() {
                   value={formData.deviceModel}
                   onChange={(e) => setFormData({ ...formData, deviceModel: e.target.value })}
                   placeholder="Samsung S23 Ultra / iPhone 13"
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                   required
                 />
               </div>
@@ -185,7 +188,7 @@ export default function IntakePage() {
                   value={formData.imei}
                   onChange={(e) => setFormData({ ...formData, imei: e.target.value })}
                   placeholder="359281048102948"
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                 />
               </div>
               <div>
@@ -196,7 +199,7 @@ export default function IntakePage() {
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     placeholder="••••"
-                    className="w-full pr-3 pl-9 py-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                    className="w-full pr-3 pl-9 py-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                   />
                   <button
                     type="button"
@@ -218,7 +221,7 @@ export default function IntakePage() {
                   value={formData.estimatedCost}
                   onChange={(e) => setFormData({ ...formData, estimatedCost: e.target.value })}
                   placeholder="1500"
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                   required
                 />
               </div>
@@ -229,7 +232,7 @@ export default function IntakePage() {
                   value={formData.deposit}
                   onChange={(e) => setFormData({ ...formData, deposit: e.target.value })}
                   placeholder="500"
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800 font-mono"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
                 />
               </div>
               <div>
@@ -239,7 +242,7 @@ export default function IntakePage() {
                   value={formData.accessories}
                   onChange={(e) => setFormData({ ...formData, accessories: e.target.value })}
                   placeholder="جراب، كارت ميموري"
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -249,7 +252,7 @@ export default function IntakePage() {
                   value={formData.fault}
                   onChange={(e) => setFormData({ ...formData, fault: e.target.value })}
                   placeholder="لا يشحن، توقف لمس الشاشة..."
-                  className="w-full p-2.5 text-xs rounded-xl border bg-slate-50 dark:bg-slate-800"
+                  className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                   required
                 />
               </div>
@@ -258,20 +261,22 @@ export default function IntakePage() {
         </Card>
 
         {/* Live Thermal Receipt Preview Card */}
-        <Card className="p-6 bg-amber-50/50 dark:bg-slate-900 border-amber-200 dark:border-slate-800 space-y-4 shadow-sm">
+        <Card className="p-6 bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4 shadow-sm rounded-sm">
           <div className="flex items-center justify-between border-b pb-3">
-            <h3 className="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-400 flex items-center gap-1.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
               <FileText className="h-4 w-4" />
               <span>معاينة الإيصال الحراري (Live Preview)</span>
             </h3>
           </div>
 
-          <div className="bg-white text-slate-900 p-4 rounded-xl shadow-inner font-mono text-xs space-y-3 border dir-rtl">
+          <div className="bg-white text-slate-900 p-4 rounded-sm shadow-inner font-mono text-xs space-y-3 border dir-rtl">
             <div className="text-center border-b pb-2">
               <h2 className="font-extrabold text-sm">{orgSettings.storeName}</h2>
               <p className="text-[10px] text-slate-500">الفرع الرئيسي</p>
               {savedTicket ? (
-                <p className="text-[11px] font-bold text-blue-600 mt-1">رقم الفاتورة: {savedTicket.ticketNumber}</p>
+                <div className="mt-1 flex justify-center">
+                  <TicketTag number={savedTicket.ticketNumber} />
+                </div>
               ) : (
                 <p className="text-[10px] text-slate-400 mt-0.5">معاينة لحظية أثناء الكتابة...</p>
               )}

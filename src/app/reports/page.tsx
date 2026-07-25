@@ -69,7 +69,7 @@ export default function ReportsPage() {
       "data:text/csv;charset=utf-8,\uFEFF" +
       "البيان,المبلغ (ج.م)\n" +
       `إجمالي إيراد الصيانة,${totalMaintenanceRevenue}\n` +
-      `إجمالي مقبوضات الخزينة,${totalFinanceIncome}\n` +
+      `إجمالي مقبوضات الدفتر المالي,${totalFinanceIncome}\n` +
       `خصم المصروفات والرواتب,${totalFinanceExpense}\n` +
       `صافي الربح النهائي,${netProfit}\n`;
 
@@ -85,9 +85,9 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-sm border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
-          <span className="px-2.5 py-1 text-xs font-black bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 rounded-lg">
+          <span className="px-2 py-0.5 text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-sm">
             التقارير المالية والتحليلات
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
@@ -103,19 +103,23 @@ export default function ReportsPage() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={exportToExcel} className="gap-2 text-xs font-bold text-emerald-600 hover:bg-emerald-50">
-            <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
-            <span>تصدير Excel</span>
+          <Button variant="outline" size="sm" onClick={exportToExcel} className="gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
+            <FileSpreadsheet className="h-4 w-4" />
+            <span>تصدير CSV</span>
           </Button>
-          <Button variant="gradient" size="sm" onClick={() => window.print()} className="gap-2 text-xs font-bold">
+          <Button
+            size="sm"
+            onClick={() => window.print()}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 text-xs font-bold"
+          >
             <FileText className="h-4 w-4" />
             <span>تحميل PDF</span>
           </Button>
         </div>
       </div>
 
-      {/* Date Range Filter Controls using Custom DatePicker */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      {/* Date Range Filter Controls */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-sm border border-slate-200 dark:border-slate-800 shadow-sm">
         <DatePicker label="من تاريخ:" value={fromDate} onChange={(v) => setFromDate(v)} />
         <DatePicker label="إلى تاريخ:" value={toDate} onChange={(v) => setToDate(v)} />
 
@@ -132,32 +136,29 @@ export default function ReportsPage() {
       </div>
 
       {/* Top Metrics Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="صافي الأرباح"
           value={`${netProfit.toLocaleString("en-US")} ج.م`}
           description="مجموع الإيرادات مطروحاً منها المصروفات"
           icon={TrendingUp}
-          accentGradient="emerald"
         />
         <MetricCard
           title="عدد أصناف المخزون المسجلة"
           value={`${inventory.length.toLocaleString("en-US")} أصناف`}
-          description="قطع غيار وإكسسوارات مسجلة في المخزن"
+          description="قطع غيار وإكسسوارات مسجلة بالمخزن"
           icon={PieChart}
-          accentGradient="blue"
         />
         <MetricCard
           title="إجمالي إيراد أوامر الصيانة"
           value={`${totalMaintenanceRevenue.toLocaleString("en-US")} ج.م`}
-          description="مجموع قيم الصيانة في الفترات المحددة"
+          description="مجموع قيم الصيانة بالمجمل"
           icon={DollarSign}
-          accentGradient="purple"
         />
       </div>
 
       {/* Breakdown Table Card */}
-      <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm">
+      <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm rounded-sm">
         <h3 className="text-sm font-bold text-slate-900 dark:text-white border-b pb-3">
           بيان الأرباح والخسائر الفعلي (Profit & Loss Breakdown)
         </h3>
@@ -175,9 +176,9 @@ export default function ReportsPage() {
             <span>خصم: المصروفات والرواتب التشغيلية:</span>
             <span className="font-bold">- {totalFinanceExpense.toLocaleString("en-US")} ج.م</span>
           </div>
-          <div className="flex justify-between py-3 pt-4 border-t-2 text-sm bg-slate-50 dark:bg-slate-800/80 px-4 rounded-xl">
+          <div className="flex justify-between py-3 pt-4 border-t-2 text-sm bg-slate-50 dark:bg-slate-800/80 px-4 rounded-sm border border-slate-200 dark:border-slate-700">
             <span className="font-extrabold text-slate-900 dark:text-white">صافي الربح النهائي (Net Profit):</span>
-            <span className="font-black text-emerald-600 text-base">
+            <span className="font-bold text-emerald-600 text-base">
               {netProfit >= 0 ? `+ ${netProfit.toLocaleString("en-US")} ج.م` : `- ${Math.abs(netProfit).toLocaleString("en-US")} ج.م`}
             </span>
           </div>

@@ -140,11 +140,11 @@ export default function InventoryPage() {
         const isLow = Number(i.stockQty) <= Number(i.minStockLevel);
         return (
           <div className="flex items-center gap-2">
-            <span className={`font-mono font-extrabold text-sm ${isLow ? "text-rose-600 font-black" : "text-slate-900 dark:text-white"}`}>
+            <span className={`font-mono font-bold text-sm ${isLow ? "text-rose-600 font-black" : "text-slate-900 dark:text-white"}`}>
               {Number(i.stockQty).toLocaleString("en-US")} قطعة
             </span>
             {isLow && (
-              <span className="px-2 py-0.5 text-[10px] bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-300 rounded-lg flex items-center gap-1 font-black animate-pulse border border-rose-300">
+              <span className="px-1.5 py-0.5 text-[10px] bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 rounded-sm flex items-center gap-1 font-mono font-bold border border-rose-300">
                 <AlertTriangle className="h-3 w-3 text-rose-600" />
                 <span>نقص مخزون ⚠️</span>
               </span>
@@ -157,9 +157,9 @@ export default function InventoryPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-sm border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
-          <span className="px-2.5 py-1 text-xs font-black bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 rounded-lg">
+          <span className="px-2 py-0.5 text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-sm">
             إدارة المخزون والمبيعات
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
@@ -175,7 +175,10 @@ export default function InventoryPage() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث</span>
           </Button>
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs font-bold">
+          <Button
+            onClick={() => setDialogOpen(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 text-xs font-bold"
+          >
             <PackagePlus className="h-4 w-4" />
             <span>إضافة صنف جديد</span>
           </Button>
@@ -183,27 +186,24 @@ export default function InventoryPage() {
       </div>
 
       {/* Inventory Health Summary Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="إجمالي أصناف المخزون"
           value={`${items.length.toLocaleString("en-US")} أصناف`}
           description="مسجلة بكارت الأصناف والمخازن"
           icon={PackageCheck}
-          accentGradient="blue"
         />
         <MetricCard
           title="تنبيهات نقص المخزون"
           value={`${lowStockItems.length.toLocaleString("en-US")} أصناف`}
           description="وصلت للحد الأدنى للطلب"
           icon={AlertTriangle}
-          accentGradient="amber"
         />
         <MetricCard
           title="إجمالي قطع الغيار"
           value={`${items.filter((i) => i.category === "قطعة غيار").length.toLocaleString("en-US")} قطعة`}
           description="متاحة لورشة الصيانة والمبيعات"
           icon={Layers}
-          accentGradient="emerald"
         />
       </div>
 
@@ -217,7 +217,10 @@ export default function InventoryPage() {
         searchPlaceholder="بحث باسم الصنف، الباركود، أو التصنيف..."
         emptyMessage="لا توجد أصناف مسجلة في المخزون حالياً"
         emptyAction={
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2 font-bold">
+          <Button
+            onClick={() => setDialogOpen(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 text-xs mt-2 font-bold"
+          >
             <PackagePlus className="h-4 w-4" />
             <span>إضافة أول صنف للمخزون</span>
           </Button>
@@ -239,7 +242,7 @@ export default function InventoryPage() {
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="شاشة iPhone 14 Pro Max"
-              className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+              className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -250,7 +253,7 @@ export default function InventoryPage() {
                 value={formData.barcode}
                 onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
                 placeholder="693847291048"
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
               />
             </div>
             <div>
@@ -258,7 +261,7 @@ export default function InventoryPage() {
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
               >
                 <option value="قطعة غيار">قطعة غيار</option>
                 <option value="إكسسوار">إكسسوار</option>
@@ -274,7 +277,7 @@ export default function InventoryPage() {
                 required
                 value={formData.buyPrice}
                 onChange={(e) => setFormData({ ...formData, buyPrice: e.target.value })}
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
               />
             </div>
             <div>
@@ -284,7 +287,7 @@ export default function InventoryPage() {
                 required
                 value={formData.sellPrice}
                 onChange={(e) => setFormData({ ...formData, sellPrice: e.target.value })}
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
               />
             </div>
           </div>
@@ -296,7 +299,7 @@ export default function InventoryPage() {
                 required
                 value={formData.stockQty}
                 onChange={(e) => setFormData({ ...formData, stockQty: e.target.value })}
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
               />
             </div>
             <div>
@@ -306,13 +309,17 @@ export default function InventoryPage() {
                 required
                 value={formData.minStockLevel}
                 onChange={(e) => setFormData({ ...formData, minStockLevel: e.target.value })}
-                className="w-full p-2.5 text-xs rounded-lg border bg-slate-50 dark:bg-slate-800 font-mono"
+                className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800 font-mono"
               />
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs font-bold">
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold"
+            >
               {submitting ? "جاري الحفظ..." : "حفظ الصنف"}
             </Button>
           </div>

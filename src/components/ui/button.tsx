@@ -4,27 +4,24 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-sm text-sm font-bold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg hover:shadow-primary/20",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm border border-primary/20",
+        destructive: "bg-rose-600 text-white hover:bg-rose-700 shadow-sm",
+        outline: "border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 shadow-sm",
+        secondary: "bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-300 dark:hover:bg-slate-700",
+        ghost: "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200",
         link: "text-primary underline-offset-4 hover:underline",
-        gradient: "gradient-primary text-white shadow-md hover:shadow-xl transition-all duration-200",
-        emerald: "gradient-emerald text-white shadow-md hover:shadow-xl",
+        gradient: "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm",
+        emerald: "bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm border border-emerald-700/30",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3 text-xs",
-        lg: "h-12 rounded-xl px-8 text-base",
-        icon: "h-10 w-10",
+        default: "h-9 px-4 py-2 text-xs",
+        sm: "h-8 rounded-sm px-3 text-xs",
+        lg: "h-11 rounded-sm px-6 text-sm",
+        icon: "h-9 w-9",
       },
     },
     defaultVariants: {
