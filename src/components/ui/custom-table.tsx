@@ -1,6 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { Search, AlertCircle, RefreshCw, FolderOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export interface Column<T> {
   header: string;
@@ -15,7 +16,11 @@ interface CustomTableProps<T> {
   searchPlaceholder?: string;
   onSearch?: (query: string) => void;
   isLoading?: boolean;
+  isError?: boolean;
+  errorMessage?: string;
+  onRetry?: () => void;
   emptyMessage?: string;
+  emptyAction?: React.ReactNode;
   actions?: React.ReactNode;
 }
 
@@ -25,7 +30,11 @@ export function CustomTable<T extends { id?: string | number }>({
   searchPlaceholder = "بحث...",
   onSearch,
   isLoading = false,
+  isError = false,
+  errorMessage = "تعذر الاتصال بالخادم، أعد المحاولة",
+  onRetry,
   emptyMessage = "لا توجد بيانات متاحة حالياً",
+  emptyAction,
   actions,
 }: CustomTableProps<T>) {
   return (
@@ -63,18 +72,41 @@ export function CustomTable<T extends { id?: string | number }>({
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
             {isLoading ? (
+              // Skeleton Loader Rows
+              [1, 2, 3, 4].map((i) => (
+                <tr key={i} className="animate-pulse">
+                  {columns.map((_, cIdx) => (
+                    <td key={cIdx} className="px-4 py-4">
+                      <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/4" />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : isError ? (
+              // Error State with Retry Button
               <tr>
-                <td colSpan={columns.length} className="py-8 text-center text-slate-400">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-                    <span>جاري تحميل البيانات...</span>
+                <td colSpan={columns.length} className="py-12 text-center text-slate-500">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <AlertCircle className="h-8 w-8 text-rose-500" />
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{errorMessage}</p>
+                    {onRetry && (
+                      <Button variant="outline" size="sm" onClick={onRetry} className="gap-2 text-xs">
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        <span>إعادة المحاولة</span>
+                      </Button>
+                    )}
                   </div>
                 </td>
               </tr>
             ) : data.length === 0 ? (
+              // Actionable Empty State
               <tr>
-                <td colSpan={columns.length} className="py-8 text-center text-slate-400 font-medium">
-                  {emptyMessage}
+                <td colSpan={columns.length} className="py-12 text-center text-slate-400">
+                  <div className="flex flex-col items-center justify-center gap-3">
+                    <FolderOpen className="h-10 w-10 text-slate-300 dark:text-slate-700" />
+                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400">{emptyMessage}</p>
+                    {emptyAction && <div className="mt-1">{emptyAction}</div>}
+                  </div>
                 </td>
               </tr>
             ) : (

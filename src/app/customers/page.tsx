@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { CustomTable, Column } from "@/components/ui/custom-table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { FormDialog } from "@/components/ui/form-dialog";
 import { UserPlus, FileSpreadsheet, RefreshCw } from "lucide-react";
 
@@ -20,6 +19,7 @@ interface Customer {
 export default function CustomersPage() {
   const [customersList, setCustomersList] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -34,14 +34,24 @@ export default function CustomersPage() {
 
   const fetchCustomers = async () => {
     setLoading(true);
+    setIsError(false);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     try {
-      const res = await fetch("/api/customers");
+      const res = await fetch("/api/customers", { signal: controller.signal });
+      clearTimeout(timeoutId);
       const json = await res.json();
       if (json.success) {
         setCustomersList(json.data);
+      } else {
+        setIsError(true);
       }
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error("Failed to fetch customers", err);
+      setIsError(true);
     } finally {
       setLoading(false);
     }
@@ -71,7 +81,7 @@ export default function CustomersPage() {
         alert(json.error || "تعذر إضافة العميل");
       }
     } catch (err) {
-      alert("حدث خطأ أثناء الاتصال بقاعدة البيانات");
+      alert("حدث خطأ أثناء الاتصال بالنظام");
     } finally {
       setSubmitting(false);
     }
@@ -102,7 +112,7 @@ export default function CustomersPage() {
       header: "الحد الائتماني (الآجل)",
       cell: (c) => (
         <span className="font-mono font-bold text-slate-600 dark:text-slate-400">
-          {Number(c.creditLimit) > 0 ? `${Number(c.creditLimit).toLocaleString("ar-EG")} ج.م` : "نقدي فقط"}
+          {Number(c.creditLimit) > 0 ? `${Number(c.creditLimit).toLocaleString("en-US")} ج.م` : "نقدي فقط"}
         </span>
       ),
     },
@@ -112,7 +122,7 @@ export default function CustomersPage() {
         const bal = Number(c.currentBalance || 0);
         return (
           <span className={`font-mono font-black ${bal > 0 ? "text-rose-600" : "text-emerald-600"}`}>
-            {bal > 0 ? `مستحق: ${bal.toLocaleString("ar-EG")} ج.م` : "خالي من الديون"}
+            {bal > 0 ? `مستحق: ${bal.toLocaleString("en-US")} ج.م` : "خالي من الديون"}
           </span>
         );
       },
@@ -133,13 +143,13 @@ export default function CustomersPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
           <span className="px-2.5 py-1 text-xs font-black bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 rounded-lg">
-            سجل العملاء المباشر (Neon Database CRM)
+            سجل حسابات العملاء (CRM)
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
             إدارة حسابات العملاء والمعاملات الآجلة
           </h1>
           <p className="text-xs text-muted-foreground">
-            تسجيل العملاء يحفظ فورياً في Neon PostgreSQL ومراجعة كشوفات الحساب
+            تسجيل بيانات العملاء ومراجعة كشوفات الحسابات والحدود الائتمانية
           </p>
         </div>
 
@@ -148,9 +158,9 @@ export default function CustomersPage() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث</span>
           </Button>
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs">
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs font-bold">
             <UserPlus className="h-4 w-4" />
-            <span>إضافة عميل حقيقي</span>
+            <span>إضافة عميل جديد</span>
           </Button>
         </div>
       </div>
@@ -159,15 +169,24 @@ export default function CustomersPage() {
         columns={columns}
         data={filtered}
         isLoading={loading}
+        isError={isError}
+        onRetry={fetchCustomers}
         onSearch={(q) => setSearch(q)}
         searchPlaceholder="بحث باسم العميل، الهاتف، أو العنوان..."
+        emptyMessage="لا يوجد عملاء مسجلين حالياً"
+        emptyAction={
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2">
+            <UserPlus className="h-4 w-4" />
+            <span>إضافة أول عميل</span>
+          </Button>
+        }
       />
 
       <FormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title="إضافة عميل جديد لقاعدة البيانات"
-        description="سيتم الحفظ المباشر في قاعدة بيانات Neon PostgreSQL"
+        title="إضافة عميل جديد"
+        description="سيتم حفظ بيانات العميل وحسابه المالي في السيستم"
       >
         <form onSubmit={handleCreateCustomer} className="space-y-4 py-2">
           <div>
@@ -214,8 +233,8 @@ export default function CustomersPage() {
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit" disabled={submitting}>
-              {submitting ? "جاري الحفظ..." : "حفظ العميل في Neon DB"}
+            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs">
+              {submitting ? "جاري الحفظ..." : "حفظ العميل"}
             </Button>
           </div>
         </form>

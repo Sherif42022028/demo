@@ -4,30 +4,40 @@ import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquareShare, CheckCircle2, RefreshCw, Zap } from "lucide-react";
+import { MessageSquareShare, CheckCircle2, RefreshCw, Zap, Wifi, WifiOff } from "lucide-react";
 
 export default function AutomationPage() {
   const [messages, setMessages] = useState<any[]>([]);
+  const [isWhatsAppConnected, setIsWhatsAppConnected] = useState<boolean>(true);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
           <span className="px-2.5 py-1 text-xs font-black bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 rounded-lg">
-            الأتمتة والواتساب (Live Automation Engine)
+            الأتمتة والواتساب (WhatsApp Automation Engine)
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
-            ربط WhatsApp API والمزامنة اللحظية
+            إشعارات الواتساب التلقائية
           </h1>
           <p className="text-xs text-muted-foreground">
-            إرسال إشعارات تلقائية فورية للعملاء فور استلام الجهاز أو انتهاء الصيانة
+            إرسال إشعارات تلقائية فورية للعملاء فور استلام الجهاز أو تحديث حالة الصيانة
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Badge variant="success" className="gap-1.5 p-2 font-mono">
-            <Zap className="h-4 w-4 text-emerald-500 animate-pulse" />
-            <span>WhatsApp Ready (Active)</span>
+        <div className="flex items-center gap-3">
+          <Badge variant={isWhatsAppConnected ? "success" : "destructive"} className="gap-1.5 p-2 font-mono text-xs">
+            {isWhatsAppConnected ? (
+              <>
+                <Zap className="h-4 w-4 text-emerald-500 animate-pulse" />
+                <span>WhatsApp Active (متصل)</span>
+              </>
+            ) : (
+              <>
+                <WifiOff className="h-4 w-4 text-rose-500" />
+                <span>WhatsApp Disconnected (غير متصل)</span>
+              </>
+            )}
           </Badge>
         </div>
       </div>
@@ -67,23 +77,32 @@ export default function AutomationPage() {
           )}
         </Card>
 
-        {/* QR Code Connect Instance */}
+        {/* Status Toggle Card */}
         <Card className="p-6 bg-slate-50/50 dark:bg-slate-900 border space-y-4 text-center">
           <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">
-            حالة جلسة الواتساب (WhatsApp Instance)
+            حالة اتصال محرك الواتساب
           </h3>
 
           <div className="mx-auto h-32 w-32 bg-white dark:bg-slate-800 border-2 border-dashed border-emerald-500 rounded-2xl flex items-center justify-center p-2 shadow-sm">
-            <CheckCircle2 className="h-16 w-16 text-emerald-500 animate-bounce" />
+            {isWhatsAppConnected ? (
+              <CheckCircle2 className="h-16 w-16 text-emerald-500 animate-bounce" />
+            ) : (
+              <WifiOff className="h-16 w-16 text-rose-500" />
+            )}
           </div>
 
-          <p className="text-xs font-bold text-emerald-600">
-            الجلسة جاهزة ومفعلة للاختبار
+          <p className={`text-xs font-bold ${isWhatsAppConnected ? "text-emerald-600" : "text-rose-600"}`}>
+            {isWhatsAppConnected ? "محرك الإشعارات جاهز ومفعل للعمليات" : "توقف المحرك عن الإرسال، أعد المزامنة"}
           </p>
 
-          <Button variant="outline" size="sm" className="w-full gap-2 text-xs">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsWhatsAppConnected(!isWhatsAppConnected)}
+            className="w-full gap-2 text-xs"
+          >
             <RefreshCw className="h-3.5 w-3.5" />
-            <span>إعادة التنشيط والمزامنة</span>
+            <span>{isWhatsAppConnected ? "قطع الاتصال للاختبار" : "إعادة التنشيط والمزامنة"}</span>
           </Button>
         </Card>
       </div>

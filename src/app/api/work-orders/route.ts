@@ -105,7 +105,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "تم حفظ أمر الصيانة حقيقياً في قاعدة البيانات Neon PostgreSQL",
+      message: "تم حفظ أمر الصيانة بنجاح في النظام",
       data: newTicket[0],
     });
   } catch (error) {

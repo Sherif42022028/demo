@@ -20,6 +20,7 @@ interface Transaction {
 export default function FinancePage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -33,14 +34,24 @@ export default function FinancePage() {
 
   const fetchTransactions = async () => {
     setLoading(true);
+    setIsError(false);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     try {
-      const res = await fetch("/api/finance");
+      const res = await fetch("/api/finance", { signal: controller.signal });
+      clearTimeout(timeoutId);
       const json = await res.json();
       if (json.success) {
         setTransactions(json.data);
+      } else {
+        setIsError(true);
       }
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error("Failed to fetch financial transactions", err);
+      setIsError(true);
     } finally {
       setLoading(false);
     }
@@ -70,7 +81,7 @@ export default function FinancePage() {
         alert(json.error || "تعذر ترحيل القيد المالي");
       }
     } catch (err) {
-      alert("حدث خطأ أثناء الاتصال بقاعدة البيانات");
+      alert("حدث خطأ أثناء الاتصال بالنظام");
     } finally {
       setSubmitting(false);
     }
@@ -94,7 +105,7 @@ export default function FinancePage() {
         <div>
           <span className="font-mono text-xs font-black text-blue-600">{t.id}</span>
           <p className="text-[11px] text-muted-foreground font-mono">
-            {t.createdAt ? new Date(t.createdAt).toLocaleDateString("ar-EG") : "اليوم"}
+            {t.createdAt ? new Date(t.createdAt).toLocaleDateString("en-US") : "اليوم"}
           </p>
         </div>
       ),
@@ -115,7 +126,7 @@ export default function FinancePage() {
         const isIncome = t.action === "مقبوضات" || t.action === "إيراد";
         return (
           <span className={`font-mono font-black text-sm ${isIncome ? "text-emerald-600" : "text-rose-600"}`}>
-            {isIncome ? "+" : "-"}{amt.toLocaleString("ar-EG")} ج.م
+            {isIncome ? "+" : "-"}{amt.toLocaleString("en-US")} ج.م
           </span>
         );
       },
@@ -140,13 +151,13 @@ export default function FinancePage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
           <span className="px-2.5 py-1 text-xs font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded-lg">
-            الدفتر المالي والخزينة المباشر (Neon Ledger Engine)
+            الدفتر المالي والخزينة
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
             محرك القيود المزدوجة والمصروفات
           </h1>
           <p className="text-xs text-muted-foreground">
-            تسجيل حركة المقبوضات والمدفوعات فورياً في Neon PostgreSQL
+            تسجيل حركة المقبوضات والمدفوعات والمصروفات التشغيلية فورياً
           </p>
         </div>
 
@@ -155,7 +166,7 @@ export default function FinancePage() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث</span>
           </Button>
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs">
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs font-bold">
             <Plus className="h-4 w-4" />
             <span>تسجيل حركة مالية جديدة</span>
           </Button>
@@ -165,28 +176,41 @@ export default function FinancePage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <MetricCard
           title="رصيد الخزينة الرئيسية الحالي"
-          value={`${netBalance.toLocaleString("ar-EG")} ج.م`}
+          value={`${netBalance.toLocaleString("en-US")} ج.م`}
           description="السيولة النقذية المتاحة كاش"
           icon={Wallet}
           accentGradient="emerald"
         />
         <MetricCard
           title="إجمالي المقبوضات"
-          value={`${totalIncome.toLocaleString("ar-EG")} ج.م`}
-          description="إيراد صيانة + مبيعات POS"
+          value={`${totalIncome.toLocaleString("en-US")} ج.م`}
+          description="إيراد صيانة + مبيعات المباشرة"
           icon={ArrowUpRight}
           accentGradient="blue"
         />
         <MetricCard
           title="إجمالي المصروفات والرواتب"
-          value={`${totalExpense.toLocaleString("ar-EG")} ج.م`}
+          value={`${totalExpense.toLocaleString("en-US")} ج.م`}
           description="إيجارات + مرتبات + أدوات ورشة"
           icon={ArrowDownLeft}
           accentGradient="amber"
         />
       </div>
 
-      <CustomTable columns={columns} data={transactions} isLoading={loading} />
+      <CustomTable
+        columns={columns}
+        data={transactions}
+        isLoading={loading}
+        isError={isError}
+        onRetry={fetchTransactions}
+        emptyMessage="لا توجد قيود أو معاملات مالية مسجلة حالياً"
+        emptyAction={
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2">
+            <Plus className="h-4 w-4" />
+            <span>تسجيل أول حركة مالية</span>
+          </Button>
+        }
+      />
 
       <FormDialog open={dialogOpen} onOpenChange={setDialogOpen} title="تسجيل قيد مالي / سند جديد">
         <form onSubmit={handleCreateTransaction} className="space-y-4 py-2">
@@ -252,8 +276,8 @@ export default function FinancePage() {
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit" disabled={submitting}>
-              {submitting ? "جاري الحفظ..." : "ترحيل القيد المالي في Neon DB"}
+            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs">
+              {submitting ? "جاري الحفظ..." : "ترحيل القيد المالي"}
             </Button>
           </div>
         </form>

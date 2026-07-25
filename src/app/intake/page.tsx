@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Printer, ShieldCheck, Phone, User, Smartphone, Lock, Camera, FileText, CheckCircle2 } from "lucide-react";
+import { Printer, User, Smartphone, FileText, CheckCircle2 } from "lucide-react";
 
 export default function IntakePage() {
   const [formData, setFormData] = useState({
@@ -52,7 +52,7 @@ export default function IntakePage() {
         alert(json.error || "تعذر حفظ الفاتورة");
       }
     } catch (err) {
-      alert("حدث خطأ أثناء الاتصال بقاعدة البيانات");
+      alert("حدث خطأ أثناء الاتصال بالنظام");
     } finally {
       setSubmitting(false);
     }
@@ -65,14 +65,14 @@ export default function IntakePage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-1 text-xs font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded-lg">
-              استقبال الأجهزة والمعاملات الحقيقية
+              استقبال الأجهزة والطلبات
             </span>
           </div>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
-            نموذج استلام جهاز جديد (معاملة تفاعلية حقيقية)
+            نموذج استلام جهاز جديد
           </h1>
           <p className="text-xs text-muted-foreground">
-            تسجيل الجهاز يحفظه مباشرة في Neon PostgreSQL وتوليد إيصال حراري وكود QR للعميل
+            تسجيل بيانات الجهاز والعميل وتوليد إيصال حراري وكود QR للعميل
           </p>
         </div>
       </div>
@@ -81,7 +81,7 @@ export default function IntakePage() {
         <div className="p-4 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-200 flex items-center justify-between animate-in fade-in">
           <div className="flex items-center gap-2 text-xs font-bold">
             <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-            <span>تم حفظ الفاتورة بنجاح في قاعدة البيانات برقم: <strong className="font-mono text-base underline">{savedTicket.ticketNumber}</strong></span>
+            <span>تم حفظ الفاتورة بنجاح في النظام برقم: <strong className="font-mono text-base underline">{savedTicket.ticketNumber}</strong></span>
           </div>
           <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-1 text-xs">
             <Printer className="h-3.5 w-3.5" />
@@ -187,7 +187,7 @@ export default function IntakePage() {
           </div>
         </Card>
 
-        {/* Live Thermal Receipt Preview */}
+        {/* Thermal Receipt Preview */}
         <Card className="p-6 bg-amber-50/50 dark:bg-slate-900 border-amber-200 dark:border-slate-800 space-y-4">
           <div className="flex items-center justify-between border-b pb-3">
             <h3 className="text-xs font-black uppercase tracking-wider text-amber-900 dark:text-amber-400 flex items-center gap-1.5">
@@ -199,7 +199,7 @@ export default function IntakePage() {
           <div className="bg-white text-slate-900 p-4 rounded-xl shadow-inner font-mono text-xs space-y-3 border dir-rtl">
             <div className="text-center border-b pb-2">
               <h2 className="font-extrabold text-sm">مركز تكنو صيانة للأجهزة</h2>
-              <p className="text-[10px] text-slate-500">الفرع الرئيسي - 01012345678</p>
+              <p className="text-[10px] text-slate-500">الفرع الرئيسي</p>
               {savedTicket && (
                 <p className="text-[11px] font-bold text-blue-600 mt-1">رقم الفاتورة: {savedTicket.ticketNumber}</p>
               )}
@@ -215,14 +215,14 @@ export default function IntakePage() {
             <div className="border-t pt-2 space-y-1 text-[11px]">
               <div className="flex justify-between">
                 <span>التكلفة التقديرية:</span>
-                <span className="font-bold">{formData.estimatedCost} ج.م</span>
+                <span className="font-bold">{Number(formData.estimatedCost || 0).toLocaleString("en-US")} ج.م</span>
               </div>
             </div>
           </div>
 
           <Button variant="emerald" type="submit" disabled={submitting} className="w-full gap-2 py-3 text-xs">
             <Printer className="h-4 w-4" />
-            <span>{submitting ? "جاري الحفظ في PostgreSQL..." : "حفظ المعاملة وتوليد QR Code"}</span>
+            <span>{submitting ? "جاري الحفظ..." : "حفظ المعاملة وتوليد الإيصال"}</span>
           </Button>
         </Card>
       </form>

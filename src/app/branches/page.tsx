@@ -5,7 +5,7 @@ import { CustomTable, Column } from "@/components/ui/custom-table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FormDialog } from "@/components/ui/form-dialog";
-import { ArrowLeftRight, Plus, MapPin, Phone, RefreshCw } from "lucide-react";
+import { Plus, MapPin, Phone, RefreshCw, Building2 } from "lucide-react";
 
 interface Branch {
   id: string;
@@ -19,6 +19,7 @@ interface Branch {
 export default function BranchesPage() {
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -31,14 +32,24 @@ export default function BranchesPage() {
 
   const fetchBranches = async () => {
     setLoading(true);
+    setIsError(false);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     try {
-      const res = await fetch("/api/branches");
+      const res = await fetch("/api/branches", { signal: controller.signal });
+      clearTimeout(timeoutId);
       const json = await res.json();
       if (json.success) {
         setBranches(json.data);
+      } else {
+        setIsError(true);
       }
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error("Failed to fetch branches", err);
+      setIsError(true);
     } finally {
       setLoading(false);
     }
@@ -68,7 +79,7 @@ export default function BranchesPage() {
         alert(json.error || "تعذر إنشاء الفرع");
       }
     } catch (err) {
-      alert("حدث خطأ أثناء الاتصال بقاعدة البيانات");
+      alert("حدث خطأ أثناء الاتصال بالنظام");
     } finally {
       setSubmitting(false);
     }
@@ -116,13 +127,13 @@ export default function BranchesPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
           <span className="px-2.5 py-1 text-xs font-black bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded-lg">
-            إدارة الفروع المباشرة (Neon DB Multi-Branch)
+            إدارة الفروع والمقرات
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
             شجرة الفروع والمقرات الرئيسية
           </h1>
           <p className="text-xs text-muted-foreground">
-            تسجيل وتخصيص الفروع يحفظ مباشرة في Neon PostgreSQL
+            تسجيل وتخصيص الفروع وتتبع صلاحيات الوصول لكل فرع
           </p>
         </div>
 
@@ -131,17 +142,30 @@ export default function BranchesPage() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث</span>
           </Button>
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs">
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs font-bold">
             <Plus className="h-4 w-4" />
             <span>إضافة فرع جديد</span>
           </Button>
         </div>
       </div>
 
-      <CustomTable columns={columns} data={branches} isLoading={loading} />
+      <CustomTable
+        columns={columns}
+        data={branches}
+        isLoading={loading}
+        isError={isError}
+        onRetry={fetchBranches}
+        emptyMessage="لا توجد فروع مسجلة حالياً"
+        emptyAction={
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2">
+            <Plus className="h-4 w-4" />
+            <span>إضافة فرع جديد</span>
+          </Button>
+        }
+      />
 
       {/* Add New Branch Dialog */}
-      <FormDialog open={dialogOpen} onOpenChange={setDialogOpen} title="إضافة فرع جديد لقاعدة البيانات">
+      <FormDialog open={dialogOpen} onOpenChange={setDialogOpen} title="إضافة فرع جديد">
         <form onSubmit={handleCreateBranch} className="space-y-4 py-2">
           <div>
             <label className="block text-xs font-bold mb-1">اسم الفرع *</label>
@@ -187,8 +211,8 @@ export default function BranchesPage() {
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit" disabled={submitting}>
-              {submitting ? "جاري الحفظ..." : "حفظ الفرع في Neon DB"}
+            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs">
+              {submitting ? "جاري الحفظ..." : "حفظ الفرع"}
             </Button>
           </div>
         </form>

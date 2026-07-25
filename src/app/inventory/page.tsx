@@ -21,6 +21,7 @@ interface Item {
 export default function InventoryPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -37,14 +38,24 @@ export default function InventoryPage() {
 
   const fetchInventory = async () => {
     setLoading(true);
+    setIsError(false);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     try {
-      const res = await fetch("/api/inventory");
+      const res = await fetch("/api/inventory", { signal: controller.signal });
+      clearTimeout(timeoutId);
       const json = await res.json();
       if (json.success) {
         setItems(json.data);
+      } else {
+        setIsError(true);
       }
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error("Failed to fetch inventory", err);
+      setIsError(true);
     } finally {
       setLoading(false);
     }
@@ -82,7 +93,7 @@ export default function InventoryPage() {
         alert(json.error || "تعذر إضافة الصنف");
       }
     } catch (err) {
-      alert("حدث خطأ أثناء الاتصال بقاعدة البيانات");
+      alert("حدث خطأ أثناء الاتصال بالنظام");
     } finally {
       setSubmitting(false);
     }
@@ -114,11 +125,11 @@ export default function InventoryPage() {
     },
     {
       header: "سعر الشراء",
-      cell: (i) => <span className="font-mono text-xs">{Number(i.buyPrice).toLocaleString("ar-EG")} ج.م</span>,
+      cell: (i) => <span className="font-mono text-xs">{Number(i.buyPrice).toLocaleString("en-US")} ج.م</span>,
     },
     {
       header: "سعر البيع",
-      cell: (i) => <span className="font-mono font-bold text-emerald-600">{Number(i.sellPrice).toLocaleString("ar-EG")} ج.م</span>,
+      cell: (i) => <span className="font-mono font-bold text-emerald-600">{Number(i.sellPrice).toLocaleString("en-US")} ج.م</span>,
     },
     {
       header: "الكمية المتاحة",
@@ -127,7 +138,7 @@ export default function InventoryPage() {
         return (
           <div className="flex items-center gap-2">
             <span className={`font-mono font-extrabold text-sm ${isLow ? "text-rose-600" : "text-slate-900 dark:text-white"}`}>
-              {i.stockQty} قطعة
+              {Number(i.stockQty).toLocaleString("en-US")} قطعة
             </span>
             {isLow && (
               <span className="px-1.5 py-0.5 text-[10px] bg-rose-100 dark:bg-rose-950 text-rose-600 rounded flex items-center gap-1 font-bold">
@@ -146,13 +157,13 @@ export default function InventoryPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
           <span className="px-2.5 py-1 text-xs font-black bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 rounded-lg">
-            المخزون المباشر (Neon Database Inventory)
+            إدارة المخزون والمبيعات
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
             كارت الأصناف وقطع الغيار والإكسسوارات
           </h1>
           <p className="text-xs text-muted-foreground">
-            إضافة الصنف والقطع تحفظ فورياً في Neon PostgreSQL مع دعم الباركود
+            تسجيل وإدارة أصناف المخزون مع دعم الباركود والتنبيه الفوري بنقص المخزون
           </p>
         </div>
 
@@ -161,7 +172,7 @@ export default function InventoryPage() {
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث</span>
           </Button>
-          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs">
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs font-bold">
             <PackagePlus className="h-4 w-4" />
             <span>إضافة صنف جديد</span>
           </Button>
@@ -172,15 +183,24 @@ export default function InventoryPage() {
         columns={columns}
         data={filtered}
         isLoading={loading}
+        isError={isError}
+        onRetry={fetchInventory}
         onSearch={(q) => setSearch(q)}
         searchPlaceholder="بحث باسم الصنف، الباركود، أو التصنيف..."
+        emptyMessage="لا توجد أصناف مسجلة في المخزون حالياً"
+        emptyAction={
+          <Button variant="emerald" onClick={() => setDialogOpen(true)} className="gap-2 text-xs mt-2">
+            <PackagePlus className="h-4 w-4" />
+            <span>إضافة أول صنف للمخزون</span>
+          </Button>
+        }
       />
 
       <FormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title="إضافة قطعة / صنف جديد لقاعدة البيانات"
-        description="سيتم التخصيص والمحافظة المباشرة في Neon PostgreSQL"
+        title="إضافة قطعة / صنف جديد للمخزون"
+        description="أدخل تفاصيل الصنف لحفظه مباشرة في السيستم"
       >
         <form onSubmit={handleCreateItem} className="space-y-4 py-2">
           <div>
@@ -264,8 +284,8 @@ export default function InventoryPage() {
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" type="button" onClick={() => setDialogOpen(false)}>إلغاء</Button>
-            <Button variant="gradient" type="submit" disabled={submitting}>
-              {submitting ? "جاري الحفظ..." : "حفظ الصنف في Neon DB"}
+            <Button variant="gradient" type="submit" disabled={submitting} className="text-xs">
+              {submitting ? "جاري الحفظ..." : "حفظ الصنف"}
             </Button>
           </div>
         </form>
