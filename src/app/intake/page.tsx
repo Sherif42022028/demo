@@ -272,6 +272,49 @@ export default function IntakePage() {
           </Button>
         </Card>
       </form>
+
+      {/* Dedicated Thermal Receipt Container for Printing (Hidden on screen, visible on window.print()) */}
+      <div id="thermal-receipt" className="hidden print:block bg-white text-black font-mono text-xs p-2 w-[80mm] dir-rtl">
+        <div className="text-center border-b border-dashed border-black pb-2 mb-2">
+          <h2 className="font-bold text-sm">مركز تكنو صيانة للأجهزة</h2>
+          <p className="text-[10px]">الفرع الرئيسي - القاهرة</p>
+          <p className="text-[10px]">{new Date().toLocaleString("ar-EG")}</p>
+        </div>
+
+        <div className="space-y-1 my-2">
+          {savedTicket?.ticketNumber && <p className="font-bold">رقم الفاتورة: {savedTicket.ticketNumber}</p>}
+          <p>العميل: {formData.customerName || "—"}</p>
+          <p>الهاتف: {formData.phone || "—"}</p>
+          <p>الجهاز: {formData.deviceModel || "—"}</p>
+          {formData.imei && <p>IMEI: {formData.imei}</p>}
+          <p>العطل: {formData.fault || "—"}</p>
+        </div>
+
+        <div className="border-t border-dashed border-black mt-2 pt-2 space-y-1">
+          <div className="flex justify-between">
+            <span>التكلفة التقديرية:</span>
+            <span>{Number(formData.estimatedCost || 0).toLocaleString("en-US")} ج.م</span>
+          </div>
+          <div className="flex justify-between">
+            <span>عربون مدفوع:</span>
+            <span>{Number(formData.deposit || 0).toLocaleString("en-US")} ج.م</span>
+          </div>
+          <div className="flex justify-between font-bold border-t border-dashed border-black pt-1">
+            <span>المتبقي عند الاستلام:</span>
+            <span>{Math.max(0, Number(formData.estimatedCost || 0) - Number(formData.deposit || 0)).toLocaleString("en-US")} ج.م</span>
+          </div>
+        </div>
+
+        {savedTicket?.qrCodeUrl && (
+          <div className="flex justify-center my-2">
+            <img src={savedTicket.qrCodeUrl} className="w-20 h-20" alt="QR" />
+          </div>
+        )}
+
+        <p className="text-center text-[10px] border-t border-dashed border-black pt-2 mt-2">
+          شكراً لثقتكم بنا! الأجهزة تقع تحت الضمان لمدة 30 يومًا من تاريخ الاستلام.
+        </p>
+      </div>
     </div>
   );
 }
