@@ -1,3 +1,5 @@
+import { sendRealWhatsAppMessage } from "./whatsapp-client";
+
 export interface WhatsAppPayload {
   phone: string;
   message: string;
@@ -6,14 +8,14 @@ export interface WhatsAppPayload {
 
 export async function sendWhatsAppNotification(payload: WhatsAppPayload): Promise<{ success: boolean; messageId?: string }> {
   try {
-    console.log(`[WhatsApp API Engine] Sending ${payload.templateType} to ${payload.phone}`);
-    // Simulated WhatsApp API webhook delivery
+    console.log(`[WhatsApp Real Engine] Dispatching ${payload.templateType} to ${payload.phone}`);
+    const result = await sendRealWhatsAppMessage(payload.phone, payload.message);
     return {
       success: true,
-      messageId: `msg_${Date.now()}`,
+      messageId: result.messageId || undefined,
     };
   } catch (error) {
-    console.error("[WhatsApp API Error]", error);
+    console.error("[WhatsApp Real Engine Error]", error);
     return { success: false };
   }
 }

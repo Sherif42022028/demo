@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { workOrders, customers, maintenanceLogs, auditLogs } from "@/db/schema";
+import { workOrders, customers, auditLogs } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
+import QRCode from "qrcode";
 
 // GET /api/work-orders (Fetch live orders with customer details)
 export async function GET() {
@@ -82,6 +83,9 @@ export async function POST(request: Request) {
     const ticketNumber = `WO-${Math.floor(1000 + Math.random() * 9000)}`;
     const id = `wo_${Date.now()}`;
 
+    // Generate Local Offline QR Code Data URI (Base64)
+    const qrCodeUrl = await QRCode.toDataURL(ticketNumber, { width: 150, margin: 1 });
+
     const newTicket = await db
       .insert(workOrders)
       .values({
@@ -99,7 +103,7 @@ export async function POST(request: Request) {
         finalCost: String(estimatedCost || "0"),
         depositPaid: String(depositPaid || "0"),
         status: "NEW",
-        qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNumber}`,
+        qrCodeUrl,
       })
       .returning();
 
