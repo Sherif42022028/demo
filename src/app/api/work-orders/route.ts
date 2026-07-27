@@ -21,6 +21,7 @@ export async function GET() {
         finalCost: workOrders.finalCost,
         depositPaid: workOrders.depositPaid,
         qrCodeUrl: workOrders.qrCodeUrl,
+        deliveredAt: workOrders.deliveredAt,
         createdAt: workOrders.createdAt,
         customerName: customers.name,
         customerPhone: customers.phone,
@@ -166,6 +167,7 @@ export async function PUT(request: Request) {
       .set({
         status,
         finalCost: finalCost ? String(finalCost) : ticket.finalCost,
+        deliveredAt: status === "DELIVERED" ? (ticket.deliveredAt || new Date()) : ticket.deliveredAt,
         updatedAt: new Date(),
       })
       .where(eq(workOrders.id, id))

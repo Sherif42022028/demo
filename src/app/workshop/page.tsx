@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { TicketTag } from "@/components/ui/ticket-tag";
-import { ArrowLeftRight, RefreshCw, Search, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowLeftRight, RefreshCw, Search, CheckCircle2, AlertCircle, PackageCheck } from "lucide-react";
 
 type MaintenanceStatus = "NEW" | "INSPECTING" | "WAITING_PARTS" | "IN_REPAIR" | "READY" | "DELIVERED";
 
@@ -18,6 +18,7 @@ interface Ticket {
   status: MaintenanceStatus;
   estimatedCost: string | number;
   finalCost?: string | number;
+  deliveredAt?: string;
 }
 
 const statusColumns: { id: MaintenanceStatus; label: string; color: string }[] = [
@@ -26,6 +27,7 @@ const statusColumns: { id: MaintenanceStatus; label: string; color: string }[] =
   { id: "WAITING_PARTS", label: "انتظار قطع غيار", color: "border-rose-300 text-rose-800 bg-rose-50 dark:bg-rose-950" },
   { id: "IN_REPAIR", label: "جاري الإصلاح", color: "border-purple-300 text-purple-800 bg-purple-50 dark:bg-purple-950" },
   { id: "READY", label: "جاهز للتسليم", color: "border-emerald-300 text-emerald-800 bg-emerald-50 dark:bg-emerald-950" },
+  { id: "DELIVERED", label: "تم التسليم للعميل", color: "border-blue-300 text-blue-800 bg-blue-50 dark:bg-blue-950" },
 ];
 
 export default function WorkshopPage() {
@@ -106,16 +108,16 @@ export default function WorkshopPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-sm border border-slate-200 dark:border-slate-800 shadow-sm">
         <div>
-          <span className="px-2.5 py-1 text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-sm">
+          <span className="px-2 py-0.5 text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-sm">
             لوحة ورشة الفحص والإصلاح
           </span>
           <h1 className="text-xl font-extrabold mt-1 text-slate-900 dark:text-white">
             شاشة تتبع حالات الصيانة والأجهزة
           </h1>
           <p className="text-xs text-muted-foreground">
-            إدارة وتحديث حالات صيانة الأجهزة وحساب تكاليف الإصلاح لحظياً
+            إدارة وتحديث حالات صيانة الأجهزة وحساب تكاليف الإصلاح وتسليم الأجهزة للعملاء
           </p>
         </div>
 
@@ -153,13 +155,13 @@ export default function WorkshopPage() {
         </div>
       )}
 
-      {/* State Machine Board Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      {/* State Machine Board Grid (6 Columns including DELIVERED) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
         {statusColumns.map((col) => {
           const colTickets = filteredTickets.filter((t) => t.status === col.id);
           return (
             <div key={col.id} className="space-y-3">
-              <div className={`p-3 rounded-sm border font-bold text-xs flex items-center justify-between ${col.color}`}>
+              <div className={`p-2.5 rounded-sm border font-bold text-xs flex items-center justify-between ${col.color}`}>
                 <span>{col.label}</span>
                 <span className="px-2 py-0.5 rounded-sm bg-white dark:bg-slate-900 font-mono text-[11px]">
                   {colTickets.length.toLocaleString("en-US")}
@@ -176,7 +178,7 @@ export default function WorkshopPage() {
                     <Card
                       key={ticket.id}
                       onClick={() => setSelectedTicket(ticket)}
-                      className={`p-4 cursor-pointer transition-all duration-200 hover:border-slate-400 ${
+                      className={`p-3.5 cursor-pointer transition-all duration-200 hover:border-slate-400 rounded-sm ${
                         selectedTicket?.id === ticket.id ? "ring-2 ring-emerald-500 shadow-md border-emerald-500" : ""
                       }`}
                     >
@@ -201,27 +203,30 @@ export default function WorkshopPage() {
         })}
       </div>
 
-      {/* Engineer Inspection & Spare Parts Desk with High Contrast Status Buttons */}
+      {/* Engineer Inspection & Status Action Desk */}
       {selectedTicket && (
         <Card className="p-6 space-y-6 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm rounded-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
             <div>
               <div className="flex items-center gap-2">
                 <TicketTag number={selectedTicket.ticketNumber} />
-                <Badge variant="purple">{selectedTicket.status}</Badge>
+                <Badge variant={selectedTicket.status === "DELIVERED" ? "info" : "purple"}>
+                  {selectedTicket.status === "DELIVERED" ? "تم التسليم للعميل ✅" : selectedTicket.status}
+                </Badge>
               </div>
               <h2 className="text-lg font-bold text-slate-900 dark:text-white mt-1">
-                لوحة فحص المهندس: {selectedTicket.deviceModel} ({selectedTicket.customerName || "عميل نقد"})
+                لوحة فحص وتحديث الجهاز: {selectedTicket.deviceModel} ({selectedTicket.customerName || "عميل نقد"})
               </h2>
             </div>
 
-            {/* Status Buttons with Active Checkmarks */}
+            {/* Status Action Buttons with DELIVERED Option */}
             <div className="flex flex-wrap items-center gap-2">
               {[
                 { status: "INSPECTING" as const, label: "جاري الفحص" },
                 { status: "WAITING_PARTS" as const, label: "انتظار قطع" },
                 { status: "IN_REPAIR" as const, label: "جاري الإصلاح" },
                 { status: "READY" as const, label: "جاهز للتسليم" },
+                { status: "DELIVERED" as const, label: "تم التسليم للعميل ✅", isDeliveredBtn: true },
               ].map((btn) => {
                 const isActive = selectedTicket.status === btn.status;
                 return (
@@ -232,11 +237,16 @@ export default function WorkshopPage() {
                     onClick={() => moveTicketStatus(selectedTicket.id, btn.status)}
                     className={`text-xs gap-1.5 transition-all font-bold ${
                       isActive
-                        ? "bg-emerald-600 text-white ring-2 ring-emerald-600 ring-offset-2 shadow-md hover:bg-emerald-700"
+                        ? btn.isDeliveredBtn
+                          ? "bg-blue-600 text-white ring-2 ring-blue-600 ring-offset-2 shadow-md hover:bg-blue-700"
+                          : "bg-emerald-600 text-white ring-2 ring-emerald-600 ring-offset-2 shadow-md hover:bg-emerald-700"
+                        : btn.isDeliveredBtn
+                        ? "bg-blue-50 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800 hover:bg-blue-100"
                         : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200"
                     }`}
                   >
                     {isActive && <CheckCircle2 className="h-4 w-4 text-white" />}
+                    {btn.isDeliveredBtn && !isActive && <PackageCheck className="h-4 w-4" />}
                     <span>{btn.label}</span>
                   </Button>
                 );
