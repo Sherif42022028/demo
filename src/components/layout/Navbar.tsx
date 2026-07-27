@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Bell, Sun, Moon, Wrench, ShieldCheck, LogIn, User, LogOut, ChevronDown, Activity } from "lucide-react";
+import { Search, Bell, Sun, Moon, Wrench, ShieldCheck, LogIn, LogOut, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Branch {
@@ -41,6 +41,13 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode }) => {
       } catch (e) {
         console.error("Failed to parse user session", e);
       }
+    } else {
+      // Default fallback for demo/review
+      setUser({
+        name: "أحمد الموصلي",
+        phone: "01000000001",
+        role: "ADMIN",
+      });
     }
 
     // 2. Fetch branches for dynamic dropdown
@@ -88,25 +95,25 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 px-6 backdrop-blur-md">
+    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 px-5 backdrop-blur-md select-none">
       {/* Search & Dynamic Branch Dropdown */}
-      <div className="flex items-center gap-4">
-        <div className="relative hidden md:block w-64">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+      <div className="flex items-center gap-3">
+        <div className="relative hidden md:block w-72">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
           <input
             type="text"
-            placeholder="بحث سريع (رقم الهاتف، IMEI، الفاتورة)..."
-            className="w-full pr-9 pl-4 py-1.5 text-xs bg-slate-100 dark:bg-slate-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500"
+            placeholder="بحث سريع (رقم الهاتف، IMEI، أمر الصيانة)..."
+            className="w-full pr-9 pl-3 py-1.5 text-xs font-mono bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-sm focus:ring-2 focus:ring-emerald-500 shadow-sm"
           />
         </div>
 
-        {/* Dynamic Branch Dropdown */}
-        <div className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-xl border border-blue-200 dark:border-blue-800">
-          <Wrench className="h-3.5 w-3.5 text-blue-600" />
+        {/* Industrial Branch Dropdown */}
+        <div className="flex items-center gap-1.5 text-xs font-mono font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-sm border border-slate-200 dark:border-slate-700">
+          <Wrench className="h-3.5 w-3.5 text-slate-500" />
           <select
             value={selectedBranch}
             onChange={(e) => setSelectedBranch(e.target.value)}
-            className="bg-transparent border-none text-xs font-bold focus:outline-none cursor-pointer text-blue-800 dark:text-blue-200"
+            className="bg-transparent border-none text-xs font-bold focus:outline-none cursor-pointer text-slate-900 dark:text-white"
           >
             {branches.length > 0 ? (
               branches.map((b) => (
@@ -115,36 +122,40 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode }) => {
                 </option>
               ))
             ) : (
-              <option value="branch-main" className="bg-white dark:bg-slate-900">الفرع الرئيسي</option>
+              <option value="branch-main" className="bg-white dark:bg-slate-900">الفرع الرئيسي (BR-01)</option>
             )}
           </select>
         </div>
 
         {/* System Connection Status Indicator */}
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-bold">
-          <span className={`h-2 w-2 rounded-full ${isConnected ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
-          <span className={isConnected ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}>
+        <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-sm bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-[11px] font-mono font-bold">
+          <span className={`h-2 w-2 rounded-full ${isConnected ? "bg-emerald-600 animate-pulse" : "bg-rose-600"}`} />
+          <span className={isConnected ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400"}>
             {isConnected ? "النظام متصل" : "غير متصل"}
           </span>
         </div>
       </div>
 
       {/* User Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {/* Dark Mode Toggle */}
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setDarkMode(!darkMode)}
-          className="rounded-full text-slate-600 dark:text-slate-300"
+          className="rounded-sm text-slate-600 dark:text-slate-300 h-9 w-9 hover:bg-slate-100 dark:hover:bg-slate-800"
         >
-          {darkMode ? <Sun className="h-5 w-5 text-amber-400" /> : <Moon className="h-5 w-5 text-slate-700" />}
+          {darkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-slate-700" />}
         </Button>
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative rounded-full text-slate-600 dark:text-slate-300">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative rounded-sm text-slate-600 dark:text-slate-300 h-9 w-9 hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <Bell className="h-4 w-4" />
+          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-rose-600 ring-2 ring-white dark:ring-slate-900" />
         </Button>
 
         {/* Auth User Section */}
@@ -154,7 +165,7 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode }) => {
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="flex items-center gap-2 pr-2 border-r border-slate-200 dark:border-slate-800 group hover:opacity-90 transition-opacity"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-sm shadow-md">
+              <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 font-mono font-bold text-xs shadow-sm">
                 {user.name ? user.name.charAt(0) : "U"}
               </div>
               <div className="hidden lg:block text-right">
@@ -162,8 +173,8 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode }) => {
                   <span>{user.name}</span>
                   <ChevronDown className="h-3 w-3 text-slate-400" />
                 </p>
-                <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
-                  <ShieldCheck className="h-3 w-3 text-emerald-500" />
+                <div className="flex items-center gap-1 text-[10px] text-muted-foreground font-mono font-bold">
+                  <ShieldCheck className="h-3 w-3 text-emerald-600" />
                   <span>{getRoleLabel(user.role)}</span>
                 </div>
               </div>
@@ -171,24 +182,24 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode }) => {
 
             {/* Dropdown Menu */}
             {userMenuOpen && (
-              <div className="absolute left-0 mt-2 w-48 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
-                <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800 text-right">
+              <div className="absolute left-0 mt-2 w-48 rounded-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md py-1.5 z-50 animate-in fade-in">
+                <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 text-right">
                   <p className="text-xs font-bold text-slate-900 dark:text-white">{user.name}</p>
                   <p className="text-[10px] font-mono text-muted-foreground">{user.phone}</p>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="w-full px-4 py-2 text-right text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 flex items-center justify-between"
+                  className="w-full px-3 py-2 text-right text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 flex items-center justify-between"
                 >
                   <span>تسجيل الخروج</span>
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-3.5 w-3.5" />
                 </button>
               </div>
             )}
           </div>
         ) : (
           <Link href="/login">
-            <Button variant="gradient" size="sm" className="gap-2 text-xs">
+            <Button className="gap-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-sm h-9">
               <LogIn className="h-4 w-4" />
               <span>تسجيل الدخول</span>
             </Button>
