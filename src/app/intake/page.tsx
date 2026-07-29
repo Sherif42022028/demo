@@ -174,12 +174,40 @@ export default function IntakePage() {
                 <label className="block text-xs font-semibold mb-1">موديل الجهاز *</label>
                 <input
                   type="text"
+                  list="device-models"
                   value={formData.deviceModel}
                   onChange={(e) => setFormData({ ...formData, deviceModel: e.target.value })}
-                  placeholder="Samsung S23 Ultra / iPhone 13"
+                  placeholder="اختر أو اكتب موديل الجهاز..."
                   className="w-full p-2.5 text-xs rounded-sm border bg-slate-50 dark:bg-slate-800"
                   required
                 />
+                <datalist id="device-models">
+                  <option value="iPhone 15 Pro Max" />
+                  <option value="iPhone 15 Pro" />
+                  <option value="iPhone 15" />
+                  <option value="iPhone 14 Pro Max" />
+                  <option value="iPhone 14" />
+                  <option value="iPhone 13 Pro Max" />
+                  <option value="iPhone 13" />
+                  <option value="iPhone 12 Pro Max" />
+                  <option value="iPhone 12" />
+                  <option value="iPhone 11" />
+                  <option value="Samsung Galaxy S24 Ultra" />
+                  <option value="Samsung Galaxy S23 Ultra" />
+                  <option value="Samsung Galaxy S22 Ultra" />
+                  <option value="Samsung Galaxy A55" />
+                  <option value="Samsung Galaxy A54" />
+                  <option value="Samsung Galaxy A34" />
+                  <option value="Samsung Galaxy A15" />
+                  <option value="Xiaomi Redmi Note 13 Pro" />
+                  <option value="Xiaomi Redmi Note 12" />
+                  <option value="Poco X6 Pro" />
+                  <option value="Realme 11 Pro" />
+                  <option value="Realme C55" />
+                  <option value="Oppo Reno 11 Pro" />
+                  <option value="Oppo A78" />
+                  <option value="Vivo V29" />
+                </datalist>
               </div>
               <div>
                 <label className="block text-xs font-semibold mb-1">الرقم التسلسلي (IMEI)</label>

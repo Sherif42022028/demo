@@ -5,7 +5,19 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
-import { FileSpreadsheet, FileText, TrendingUp, DollarSign, PieChart, RefreshCw } from "lucide-react";
+import { FileSpreadsheet, FileText, TrendingUp, DollarSign, PieChart as PieIcon, RefreshCw, BarChart2 } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart as RePieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts";
 
 export default function ReportsPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -63,6 +75,32 @@ export default function ReportsPage() {
     .reduce((sum, f) => sum + Number(f.details?.amount || 0), 0);
 
   const netProfit = totalMaintenanceRevenue + totalFinanceIncome - totalFinanceExpense;
+
+  // Chart Data Calculations
+  const statusLabels: Record<string, string> = {
+    NEW: "جديد",
+    INSPECTING: "جاري الفحص",
+    WAITING_PARTS: "انتظار قطع",
+    IN_REPAIR: "جاري الإصلاح",
+    READY: "جاهز للتسليم",
+    DELIVERED: "تم التسليم",
+  };
+
+  const statusChartData = Object.keys(statusLabels).map((statusKey) => {
+    const matching = filteredOrders.filter((o) => o.status === statusKey);
+    const revenue = matching.reduce((sum, o) => sum + Number(o.finalCost || o.estimatedCost || 0), 0);
+    return {
+      status: statusLabels[statusKey],
+      revenue,
+      count: matching.length,
+    };
+  });
+
+  const pieChartData = [
+    { name: "إيراد الصيانة", value: totalMaintenanceRevenue, color: "#10b981" },
+    { name: "مقبوضات مالية", value: totalFinanceIncome, color: "#3b82f6" },
+    { name: "مصروفات تشغيل", value: totalFinanceExpense, color: "#f43f5e" },
+  ].filter((item) => item.value > 0);
 
   const exportToExcel = () => {
     const csvContent =
@@ -147,7 +185,7 @@ export default function ReportsPage() {
           title="عدد أصناف المخزون المسجلة"
           value={`${inventory.length.toLocaleString("en-US")} أصناف`}
           description="قطع غيار وإكسسوارات مسجلة بالمخزن"
-          icon={PieChart}
+          icon={PieIcon}
         />
         <MetricCard
           title="إجمالي إيراد أوامر الصيانة"
@@ -155,6 +193,68 @@ export default function ReportsPage() {
           description="مجموع قيم الصيانة بالمجمل"
           icon={DollarSign}
         />
+      </div>
+
+      {/* Interactive Recharts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Bar Chart: Revenue by Maintenance Status */}
+        <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm rounded-sm">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 border-b pb-3">
+            <BarChart2 className="h-4 w-4 text-emerald-500" />
+            <span>توزيع الإيرادات حسب حالة أوامر الصيانة (ج.م)</span>
+          </h3>
+          <div className="h-[250px] w-full pt-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={statusChartData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                <XAxis dataKey="status" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 11 }} />
+                <Tooltip
+                  formatter={(value: any) => [`${Number(value).toLocaleString("en-US")} ج.م`, "الإيراد"]}
+                  contentStyle={{ backgroundColor: "#0f172a", borderRadius: "4px", color: "#fff", fontSize: "12px" }}
+                />
+                <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Pie Chart: Financial Distribution */}
+        <Card className="p-6 space-y-4 bg-white dark:bg-slate-900 shadow-sm rounded-sm">
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 border-b pb-3">
+            <PieIcon className="h-4 w-4 text-blue-500" />
+            <span>الهيكل المالي لنسب الإيرادات والمصروفات</span>
+          </h3>
+          <div className="h-[250px] w-full pt-2">
+            {pieChartData.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-xs text-slate-400">
+                لا توجد بيانات مالية للعرض حالياً
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <RePieChart>
+                  <Pie
+                    data={pieChartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={85}
+                    paddingAngle={4}
+                    dataKey="value"
+                  >
+                    {pieChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: any) => [`${Number(value).toLocaleString("en-US")} ج.م`, "المبلغ"]}
+                    contentStyle={{ backgroundColor: "#0f172a", borderRadius: "4px", color: "#fff", fontSize: "12px" }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: "12px" }} />
+                </RePieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </Card>
       </div>
 
       {/* Breakdown Table Card */}

@@ -3,11 +3,19 @@ import { db } from "@/db";
 import { workOrders, customers, auditLogs } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import QRCode from "qrcode";
+import { encryptDevicePassword, decryptDevicePassword } from "@/lib/encryption";
 
-// GET /api/work-orders (Fetch live orders with customer details)
-export async function GET() {
+// GET /api/work-orders (Fetch live orders with customer details & optional pagination)
+export async function GET(request: Request) {
   try {
-    const list = await db
+    const { searchParams } = new URL(request.url);
+    const pageParam = searchParams.get("page");
+    const limitParam = searchParams.get("limit");
+
+    const page = pageParam ? parseInt(pageParam, 10) : null;
+    const limit = limitParam ? parseInt(limitParam, 10) : null;
+
+    let baseQuery = db
       .select({
         id: workOrders.id,
         ticketNumber: workOrders.ticketNumber,
@@ -30,9 +38,23 @@ export async function GET() {
       .leftJoin(customers, eq(workOrders.customerId, customers.id))
       .orderBy(desc(workOrders.createdAt));
 
+    let list;
+    if (page && limit && page > 0 && limit > 0) {
+      const offset = (page - 1) * limit;
+      list = await baseQuery.limit(limit).offset(offset);
+    } else {
+      list = await baseQuery;
+    }
+
+    const decryptedList = list.map((item) => ({
+      ...item,
+      devicePassword: decryptDevicePassword(item.devicePassword),
+    }));
+
     return NextResponse.json({
       success: true,
-      data: list,
+      data: decryptedList,
+      ...(page && limit ? { pagination: { page, limit } } : {}),
     });
   } catch (error) {
     console.error("[Work Orders GET Error]", error);
@@ -97,7 +119,7 @@ export async function POST(request: Request) {
         createdById: "user-admin",
         deviceModel,
         imei: imei || null,
-        devicePassword: devicePassword || null,
+        devicePassword: encryptDevicePassword(devicePassword),
         reportedFault,
         accessories: accessories || "لا يوجد",
         estimatedCost: String(estimatedCost || "0"),

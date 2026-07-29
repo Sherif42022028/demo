@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, integer, numeric, jsonb, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, integer, numeric, jsonb, pgEnum, index } from "drizzle-orm/pg-core";
 
 // Role Enum for Granular RBAC
 export const userRoleEnum = pgEnum("user_role", [
@@ -88,7 +88,11 @@ export const workOrders = pgTable("work_orders", {
   deliveredAt: timestamp("delivered_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("idx_work_orders_status").on(table.status),
+  index("idx_work_orders_customer_id").on(table.customerId),
+  index("idx_work_orders_created_at").on(table.createdAt),
+]);
 
 // 5. Maintenance Inspection Logs (سجل الفحص والورشة)
 export const maintenanceLogs = pgTable("maintenance_logs", {
