@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { FileSpreadsheet, FileText, TrendingUp, DollarSign, PieChart as PieIcon, RefreshCw, BarChart2 } from "lucide-react";
+import { printReportDocument } from "@/lib/print-report";
 import {
   BarChart,
   Bar,
@@ -102,6 +103,19 @@ export default function ReportsPage() {
     { name: "مصروفات تشغيل", value: totalFinanceExpense, color: "#f43f5e" },
   ].filter((item) => item.value > 0);
 
+  const handlePrintPdf = () => {
+    printReportDocument({
+      fromDate,
+      toDate,
+      totalMaintenanceRevenue,
+      totalFinanceIncome,
+      totalFinanceExpense,
+      netProfit,
+      inventoryCount: inventory.length,
+      statusBreakdown: statusChartData,
+    });
+  };
+
   const exportToExcel = () => {
     const csvContent =
       "data:text/csv;charset=utf-8,\uFEFF" +
@@ -136,7 +150,7 @@ export default function ReportsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 no-print">
           <Button variant="outline" size="sm" onClick={fetchReportData} className="gap-2 text-xs">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>تحديث</span>
@@ -147,7 +161,7 @@ export default function ReportsPage() {
           </Button>
           <Button
             size="sm"
-            onClick={() => window.print()}
+            onClick={handlePrintPdf}
             className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 text-xs font-bold"
           >
             <FileText className="h-4 w-4" />
@@ -157,7 +171,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Date Range Filter Controls */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-sm border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-50 dark:bg-slate-900/60 p-4 rounded-sm border border-slate-200 dark:border-slate-800 shadow-sm no-print">
         <DatePicker label="من تاريخ:" value={fromDate} onChange={(v) => setFromDate(v)} />
         <DatePicker label="إلى تاريخ:" value={toDate} onChange={(v) => setToDate(v)} />
 
